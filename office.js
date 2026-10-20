@@ -110,7 +110,71 @@ document.querySelectorAll('.speed button').forEach(function(b){
 
 /* ---------- MAPA ---------- */
 var svg=$('map'),gAv={},gDesk={},gBub={},gDot={};
-var LAYOUT={luna:[500,92,'Dirección'],sol:[185,290,'Ventas'],vega:[735,290,'Marketing y SEO'],atlas:[905,290,'Marketing y SEO'],eco:[100,515,'Clientes'],alba:[270,515,'Clientes'],abaco:[735,515,'Finanzas'],egida:[905,515,'Seguridad']};
+/* ---------- PERSONAJES (SVG propio, originales) ---------- */
+var LOOKS={
+ luna:{skin:'#f1c9a5',hair:'#2a1b3d',style:'long',x:['lapel']},
+ sol:{skin:'#8d5a3b',hair:'#17120f',style:'curly',x:['tie']},
+ vega:{skin:'#e0ac86',hair:'#a0451f',style:'bun',x:['glasses','phones']},
+ atlas:{skin:'#c68a62',hair:'#1b1b1b',style:'short',x:['glassesSq','beard']},
+ eco:{skin:'#f4d3b5',hair:'#3b2a1e',style:'ponytail',x:['headset']},
+ alba:{skin:'#e0ac86',hair:'#d9a441',style:'bob',x:[]},
+ abaco:{skin:'#f1c9a5',hair:'#b9b9c6',style:'bald',x:['glasses','tie']},
+ egida:{skin:'#c68a62',hair:'#101015',style:'hood',x:['shades']}
+};
+function shade(hex,k){var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;function f(v){return Math.max(0,Math.min(255,Math.round(v*k)))}return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
+function buildChar(a,p,full){
+ var L=LOOKS[a.id],c=a.c,dark=shade(c,.55),has=function(x){return L.x.indexOf(x)>=0};
+ var root=el('g',{class:'char'},p);
+ if(full)el('ellipse',{cx:0,cy:32,rx:17,ry:4.5,class:'shadow'},root);
+ if(full){
+  var legs=el('g',{class:'legs'},root);
+  var l1=el('g',{class:'leg legL'},legs),l2=el('g',{class:'leg legR'},legs);
+  [[l1,-9],[l2,2]].forEach(function(q){el('rect',{x:q[1],y:6,width:7,height:22,rx:3,fill:'#1b1b2a'},q[0]);el('rect',{x:q[1]-1,y:25,width:9,height:5,rx:2.5,fill:'#0c0c12'},q[0])});
+ }
+ // pelo trasero / capucha
+ if(L.style==='long')el('rect',{x:-14,y:-50,width:28,height:42,rx:12,fill:L.hair},root);
+ if(L.style==='bob')el('rect',{x:-13.5,y:-50,width:27,height:24,rx:10,fill:L.hair},root);
+ if(L.style==='ponytail')el('ellipse',{cx:13,cy:-34,rx:4.5,ry:11,fill:L.hair},root);
+ if(L.style==='hood')el('ellipse',{cx:0,cy:-40,rx:16,ry:17,fill:'#16161f'},root);
+ // brazos
+ var aL=el('g',{class:'arm armL'},root),aR=el('g',{class:'arm armR'},root);
+ [[aL,-19],[aR,12]].forEach(function(q){el('rect',{x:q[1],y:-23,width:7,height:25,rx:3.5,fill:dark},q[0]);el('circle',{cx:q[1]+3.5,cy:3,r:3.6,fill:L.skin},q[0])});
+ // torso
+ el('rect',{x:-14,y:-25,width:28,height:33,rx:9,fill:c},root);
+ el('rect',{x:-14,y:-6,width:28,height:3,fill:'rgba(0,0,0,.18)'},root);
+ if(has('lapel')){el('path',{d:'M-5,-25 L0,-10 L-10,-6 Z',fill:'#fff',opacity:.9},root);el('path',{d:'M5,-25 L0,-10 L10,-6 Z',fill:'#fff',opacity:.9},root)}
+ if(has('tie')){el('path',{d:'M-3,-25 L3,-25 L2,-8 L0,-4 L-2,-8 Z',fill:'#f0f0f5'},root);el('path',{d:'M-5,-26 L0,-20 L5,-26',fill:'none',stroke:'#fff','stroke-width':2},root)}
+ if(L.style==='hood')el('path',{d:'M-9,-26 Q0,-17 9,-26',fill:'none',stroke:'#16161f','stroke-width':4},root);
+ // cuello y cabeza
+ el('rect',{x:-3.5,y:-31,width:7,height:8,rx:2,fill:shade(L.skin,.9)},root);
+ el('ellipse',{cx:0,cy:-39,rx:11,ry:12.5,fill:L.skin},root);
+ // pelo frontal
+ var cap='M-12,-41 Q-12,-54 0,-54 Q12,-54 12,-41 Q7,-47 0,-46 Q-7,-47 -12,-41 Z';
+ if(L.style==='long'||L.style==='bob'||L.style==='ponytail'||L.style==='short')el('path',{d:cap,fill:L.hair},root);
+ if(L.style==='bun'){el('path',{d:cap,fill:L.hair},root);el('circle',{cx:0,cy:-56,r:6,fill:L.hair},root)}
+ if(L.style==='curly'){[[-9,-47],[-3,-52],[4,-52],[10,-47],[-12,-40],[12,-40]].forEach(function(q){el('circle',{cx:q[0],cy:q[1],r:6,fill:L.hair},root)})}
+ if(L.style==='bald'){el('ellipse',{cx:-11,cy:-39,rx:2.6,ry:5.5,fill:L.hair},root);el('ellipse',{cx:11,cy:-39,rx:2.6,ry:5.5,fill:L.hair},root)}
+ if(L.style==='hood')el('path',{d:'M-12,-42 Q-11,-53 0,-53 Q11,-53 12,-42 Q8,-46 0,-45.5 Q-8,-46 -12,-42 Z',fill:'#16161f'},root);
+ // cara
+ var eyes=el('g',{class:'eyes'},root);
+ if(!has('shades')){el('ellipse',{cx:-4.3,cy:-39,rx:1.7,ry:2,fill:'#14141c'},eyes);el('ellipse',{cx:4.3,cy:-39,rx:1.7,ry:2,fill:'#14141c'},eyes)}
+ el('path',{d:'M-3.5,-32.5 Q0,-30 3.5,-32.5',fill:'none',stroke:shade(L.skin,.55),'stroke-width':1.3,'stroke-linecap':'round'},root);
+ el('ellipse',{cx:-7.5,cy:-35,rx:2.2,ry:1.4,fill:'rgba(255,120,120,.25)'},root);el('ellipse',{cx:7.5,cy:-35,rx:2.2,ry:1.4,fill:'rgba(255,120,120,.25)'},root);
+ if(has('beard'))el('path',{d:'M-9,-37 Q-10,-28 0,-26 Q10,-28 9,-37 Q6,-31 0,-31 Q-6,-31 -9,-37 Z',fill:'#1b1b1b',opacity:.92},root);
+ if(has('glasses')){el('circle',{cx:-4.6,cy:-39,r:4.4,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('circle',{cx:4.6,cy:-39,r:4.4,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('line',{x1:-0.3,y1:-39,x2:0.3,y2:-39,stroke:'#e8e8f2','stroke-width':1.2},root)}
+ if(has('glassesSq')){el('rect',{x:-9.5,y:-42.5,width:8.4,height:7,rx:1.8,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('rect',{x:1.1,y:-42.5,width:8.4,height:7,rx:1.8,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('line',{x1:-1.1,y1:-39,x2:1.1,y2:-39,stroke:'#e8e8f2','stroke-width':1.2},root)}
+ if(has('shades')){el('rect',{x:-10,y:-42.5,width:20,height:7,rx:3,fill:'#0b0b10',stroke:c,'stroke-width':.8},root)}
+ if(has('phones')){el('path',{d:'M-12,-42 Q0,-60 12,-42',fill:'none',stroke:'#2a2a3a','stroke-width':3,'stroke-linecap':'round'},root);el('rect',{x:-15,y:-43,width:5,height:10,rx:2.5,fill:'#9d70ff'},root);el('rect',{x:10,y:-43,width:5,height:10,rx:2.5,fill:'#9d70ff'},root)}
+ if(has('headset')){el('path',{d:'M-12,-42 Q0,-58 12,-42',fill:'none',stroke:'#2a2a3a','stroke-width':2.6,'stroke-linecap':'round'},root);el('rect',{x:-14.5,y:-44,width:5,height:9,rx:2.5,fill:'#2a2a3a'},root);el('path',{d:'M-12,-35 Q-12,-27 -4,-28',fill:'none',stroke:'#2a2a3a','stroke-width':1.6},root);el('circle',{cx:-4,cy:-28,r:1.8,fill:'#ff7ab6'},root)}
+ return root;
+}
+function portrait(cls,a,sz){
+ var d=h('span',cls,null);d.style.setProperty('--c',a.c);
+ var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','-24 -60 48 56');s.setAttribute('aria-hidden','true');
+ var g=el('g',{},s);buildChar(a,g,false);d.appendChild(s);return d;
+}
+
+var LAYOUT={luna:[500,112,'Dirección'],sol:[185,290,'Ventas'],vega:[735,290,'Marketing y SEO'],atlas:[905,290,'Marketing y SEO'],eco:[100,515,'Clientes'],alba:[270,515,'Clientes'],abaco:[735,515,'Finanzas'],egida:[905,515,'Seguridad']};
 AGENTS.forEach(function(a){var l=LAYOUT[a.id];a.x=l[0];a.y=l[1];a.dept=l[2]});
 var PLACES={demos:[500,312,'Sala de demos'],datos:[120,176,'Sala de datos'],aprob:[880,172,'Aprobaciones'],meet:[500,495,'Sala de reuniones']};
 var AGENT_LOC={sol:'demos',vega:'datos',atlas:'datos',eco:'datos',alba:'datos',abaco:'datos',egida:'datos'};
@@ -135,7 +199,7 @@ function buildMap(){
   return g;
  }
  // dirección
- room(330,20,340,160,'DIRECCIÓN','glass','#f5c842');
+ room(330,20,340,172,'DIRECCIÓN','glass','#f5c842');
  // datos
  var dg=room(20,20,200,130,'DATOS · SUPABASE','','#00d4aa');
  for(var s=0;s<3;s++){el('rect',{x:42+s*58,y:62,width:44,height:62,rx:6,class:'rack'},dg);el('circle',{cx:64+s*58,cy:76,r:3,class:'led l'+s},dg)}
@@ -166,12 +230,11 @@ function buildMap(){
  AGENTS.forEach(function(a){
   var g=el('g',{class:'av',tabindex:'0',role:'button','aria-label':'Ver qué hace '+a.name+', '+a.role,'data-id':a.id,style:'--c:'+a.c},svg);
   gAv[a.id]=g;
-  el('circle',{r:32,class:'selring'},g);
-  el('circle',{r:26,class:'halo',filter:'url(#glow)'},g);
-  el('circle',{r:21,class:'body'},g);
-  el('text',{y:6,'text-anchor':'middle',class:'glyph'},g,a.g);
-  gDot[a.id]=el('circle',{cx:16,cy:-16,r:5,class:'dot'},g);
-  var b=el('g',{class:'bub',transform:'translate(0,-44)'},g);
+  el('ellipse',{cx:0,cy:39,rx:30,ry:8,class:'selring'},g);
+  el('ellipse',{cx:0,cy:-10,rx:36,ry:54,class:'halo',filter:'url(#glow)'},g);
+  var cg=el('g',{transform:'scale(1.3)'},g);buildChar(a,cg,true);
+  gDot[a.id]=el('circle',{cx:20,cy:-66,r:5.5,class:'dot'},g);
+  var b=el('g',{class:'bub',transform:'translate(0,-90)'},g);
   gBub[a.id]={g:b,r:el('rect',{x:-80,y:-18,width:160,height:24,rx:12},b),t:el('text',{y:-2,'text-anchor':'middle'},b,'')};
   place(a,a.x,a.y-16,true);
   g.addEventListener('click',function(){select(a.id)});
@@ -181,7 +244,9 @@ function buildMap(){
 }
 function place(a,x,y,instant){
  var g=gAv[a.id];g.style.transition=(instant||REDUCED)?'none':'transform 1.4s cubic-bezier(.5,0,.2,1)';
- g.style.transform='translate('+x+'px,'+y+'px)';a.px=x;a.py=y;
+ g.style.transform='translate('+x+'px,'+y+'px)';
+ if(!instant&&!REDUCED&&(Math.abs((a.px||0)-x)>6||Math.abs((a.py||0)-y)>6)){g.classList.add('walking');clearTimeout(a.wt);a.wt=setTimeout(function(){g.classList.remove('walking')},1450)}
+ a.px=x;a.py=y;
 }
 function bubble(a,txt){
  var b=gBub[a.id];
@@ -328,7 +393,7 @@ function select(id){
 function renderAgent(){
  var a=BY[state.sel],p=$('agent-panel');if(!p||!a)return;
  p.textContent='';p.style.setProperty('--c',a.c);
- var top=h('div','ap-top',null,p);h('span','tav',a.g,top);
+ var top=h('div','ap-top',null,p);top.appendChild(portrait('tav',a));
  var w=h('div','',null,top);h('b','',a.name,w);h('small','',a.role+' · '+a.dept,w);
  var stt=h('span','ap-st '+(a.st==='work'?'on':''),a.st==='work'?'Trabajando':(a.away>0?'En desplazamiento':'Libre'),top);
  h('h3','',"Ahora mismo",p);
@@ -350,7 +415,7 @@ function renderAgent(){
 function openFicha(id){
  var a=BY[id],d=$('ficha'),fc=$('fc');fc.textContent='';fc.style.setProperty('--c',a.c);
  var top=h('div','fh',null,fc);
- var av=h('div','fav',a.g,top);
+ var av=portrait('fav',a);top.appendChild(av);
  var tt=h('div','',null,top);var n=h('h2','',a.name,tt);n.id='f-name';h('p','',a.role,tt);
  var x=h('button','fx','Cerrar',top);x.type='button';x.addEventListener('click',function(){d.close()});
  h('p','fm',a.mission,fc);
@@ -385,7 +450,7 @@ function buildTeam(){
  var t=$('team');
  AGENTS.forEach(function(a){
   var b=h('button','tc',null,t);b.type='button';b.style.setProperty('--c',a.c);
-  var top=h('div','tt',null,b);h('span','tav',a.g,top);var w=h('div','',null,top);h('b','',a.name,w);h('small','',a.role,w);
+  var top=h('div','tt',null,b);top.appendChild(portrait('tav',a));var w=h('div','',null,top);h('b','',a.name,w);h('small','',a.role,w);
   h('p','',a.mission,b);
   h('span','tag',a.real[0].indexOf('Sin datos')===0||a.real[0].indexOf('Nada')===0?'Solo simulado':'Con parte real',b);
   b.addEventListener('click',function(){openFicha(a.id)});
