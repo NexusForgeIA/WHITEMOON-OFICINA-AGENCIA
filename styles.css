@@ -189,3 +189,31 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 #agent-panel .btn{padding:9px 16px;font-size:13px}
 .team .tc .row{margin-top:auto}
 .team .tc .btn{padding:8px 12px;font-size:12px}
+
+/* ---- personajes ---- */
+.char{transform-box:fill-box}
+.shadow{fill:rgba(0,0,0,.45)}
+.av .legs{display:none}
+.av.walking .legs{display:block}
+.leg,.arm,.eyes{transform-box:fill-box;transform-origin:50% 0}
+.av.walking .legL{animation:swing .4s ease-in-out infinite alternate}
+.av.walking .legR{animation:swing .4s ease-in-out infinite alternate-reverse}
+@keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+.av.walking .armL{animation:swing .4s ease-in-out infinite alternate-reverse}
+.av.walking .armR{animation:swing .4s ease-in-out infinite alternate}
+.av.walking .char{animation:bob .4s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-2.5px)}}
+.av.work:not(.walking) .armL{animation:type .28s ease-in-out infinite alternate}
+.av.work:not(.walking) .armR{animation:type .28s ease-in-out infinite alternate-reverse}
+@keyframes type{from{transform:rotate(-14deg)}to{transform:rotate(10deg)}}
+.av:not(.walking):not(.work) .char{animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.2px)}}
+.eyes{transform-origin:50% 50%;animation:blink2 5s infinite}
+@keyframes blink2{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.av .halo{opacity:.1}
+.av.work .halo{opacity:.32}
+.tav,.fav{overflow:hidden;background:color-mix(in srgb,var(--c) 18%,#0f0f18)}
+.tav svg,.fav svg{width:100%;height:100%;display:block}
+.fav{width:64px;height:64px}
+.tav{width:46px;height:46px}
+#map{overflow:visible}.map-card{overflow:visible}
