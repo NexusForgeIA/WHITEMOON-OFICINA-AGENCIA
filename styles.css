@@ -226,3 +226,7 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 @keyframes talk{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
 .conn{font-size:11px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border);border-radius:99px;padding:4px 12px;text-decoration:none}
 .conn.ok{color:var(--g);border-color:var(--g)}.conn.warn{color:#ff9d6b;border-color:#ff9d6b}
+.pimg{width:100%;height:100%;object-fit:cover;object-position:50% 8%;display:block}
+.imgchar{filter:drop-shadow(0 4px 5px rgba(0,0,0,.6))}
+.av.work:not(.walking) .imgchar image{animation:sway .6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes sway{from{transform:rotate(-1.2deg)}to{transform:rotate(1.2deg)}}

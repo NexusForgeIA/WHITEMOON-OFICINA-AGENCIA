@@ -109,8 +109,9 @@ document.querySelectorAll('.speed button').forEach(function(b){
 });
 
 /* ---------- MAPA ---------- */
-var svg=$('map'),gAv={},gDesk={},gBub={},gDot={};
+var svg=$('map'),gCg={},gAv={},gDesk={},gBub={},gDot={};
 /* ---------- PERSONAJES v2 (SVG propio, originales) ---------- */
+var AV={};
 var LOOKS={
  luna:{skin:'#f3cdb0',hair:'#2b1646',eye:'#6b3fd6',style:'long',x:['lapel','brows','lash']},
  sol:{skin:'#9a6240',hair:'#15100d',eye:'#3a2414',style:'curly',x:['tie','brows']},
@@ -208,6 +209,7 @@ function buildChar(a,p,full){
 }
 function portrait(cls,a,sz){
  var d=h('span',cls,null);d.style.setProperty('--c',a.c);
+ if(AV[a.id]){var im=document.createElement('img');im.src='assets/avatars/'+a.id+'.webp';im.alt='';im.className='pimg';d.appendChild(im);return d}
  var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','-26 -76 52 66');s.setAttribute('aria-hidden','true');
  var g=el('g',{},s);buildChar(a,g,false);d.appendChild(s);return d;
 }
@@ -271,7 +273,7 @@ function buildMap(){
   gAv[a.id]=g;
   el('ellipse',{cx:0,cy:36,rx:28,ry:8,class:'selring'},g);
   el('ellipse',{cx:0,cy:-14,rx:36,ry:62,class:'halo',filter:'url(#glow)'},g);
-  var cg=el('g',{transform:'scale(1.1)'},g);buildChar(a,cg,true);
+  var cg=el('g',{transform:'scale(1.1)'},g);buildChar(a,cg,true);gCg[a.id]=cg;
   gDot[a.id]=el('circle',{cx:24,cy:-78,r:5.5,class:'dot'},g);
   var b=el('g',{class:'bub',transform:'translate(0,-100)'},g);
   gBub[a.id]={g:b,r:el('rect',{x:-80,y:-18,width:160,height:24,rx:12},b),t:el('text',{y:-2,'text-anchor':'middle'},b,'')};
@@ -516,6 +518,29 @@ function buildTeam(){
   b.addEventListener('click',function(){openFicha(a.id)});
  });
 }
+
+
+/* ---------- AVATARES 3D (imágenes en assets/avatars, listadas en avatars.json) ---------- */
+function swapAvatars(){
+ var ids=Object.keys(AV).filter(function(k){return AV[k]&&BY[k]});if(!ids.length)return;
+ var pending=ids.length;
+ ids.forEach(function(id){
+  var im=new Image();
+  im.onload=function(){
+   var cg=gCg[id];if(cg){
+    cg.textContent='';
+    var H=122,W=H*im.naturalWidth/im.naturalHeight;
+    var g=el('g',{class:'char imgchar'},cg);
+    el('ellipse',{cx:0,cy:30,rx:W*.34,ry:5,class:'shadow'},g);
+    var i=el('image',{href:im.src,x:-W/2,y:34-H,width:W,height:H,preserveAspectRatio:'xMidYMax meet'},g);
+   }
+   if(--pending===0){$('team').textContent='';buildTeam();renderAgent()}
+  };
+  im.onerror=function(){delete AV[id];if(--pending===0){$('team').textContent='';buildTeam();renderAgent()}};
+  im.src='assets/avatars/'+id+'.webp';
+ });
+}
+fetch('avatars.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():{}}).then(function(j){AV=j||{};swapAvatars()}).catch(function(){});
 
 buildMap();buildTeam();drawBoard();kpis();select('luna');
 loop();
