@@ -9,6 +9,7 @@ function init(){
  sb=window.supabase.createClient(URL,KEY,{auth:{storage:window.sessionStorage,persistSession:true,autoRefreshToken:true}});
  return sb;
 }
+window.WM_SB=function(){return init()};
 function msg(t){$('v-msg').textContent=t}
 function esc(s){return String(s==null?'':s)}
 function render(rows){
