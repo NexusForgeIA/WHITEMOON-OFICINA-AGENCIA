@@ -21,6 +21,7 @@
       <a href="#oficina" data-view="oficina">Oficina</a>
       <a href="#equipo" data-view="equipo">Equipo</a>
       <a href="#tablon" data-view="tablon">Tablón</a>
+      <a href="#todo" data-view="todo">Ver todo</a>
       <a href="#decisiones" data-view="decisiones">Decisiones <span class="dn" id="dec-n" hidden></span></a>
       <a href="#radar" data-view="radar">Radar</a>
       <a href="#demos" data-view="demos">Sala de demos</a>
@@ -34,6 +35,7 @@
     <header class="top">
       <h1 id="title">Oficina</h1>
       <span class="badge" id="mode-badge">SIMULACIÓN</span>
+      <a class="btn ghost sm" href="#todo">Ver todo</a>
       <a class="conn" id="conn" href="#ventas" title="Inicia sesión en Ventas para conectar con Supabase">Supabase: sin sesión</a>
       <div class="speed" role="group" aria-label="Velocidad de la simulación">
         <button data-sp="0" type="button">Pausa</button>
@@ -77,6 +79,17 @@
     <section id="tablon" class="view" hidden>
       <div class="board" id="board"></div>
       <p class="hint">Las tareas de ventas y marketing terminan en «Para tu revisión»: nada sale sin que tú lo apruebes.</p>
+    </section>
+
+    <!-- TODO -->
+    <section id="todo" class="view" hidden>
+      <p class="lead">Todo lo que han hecho los agentes, ordenado por hora: lo que te han pasado y lo que han descartado con su motivo. Aquí no hay que aprobar nada.</p>
+      <div class="panel wide" id="t-off"><p class="hint" style="margin:0">Inicia sesión en <a href="#ventas">Ventas · Scout</a> para ver el historial real.</p></div>
+      <div id="t-app" hidden>
+        <div class="kpis" id="t-kpis"></div>
+        <div class="row" id="t-chips" style="margin:0 0 14px"></div>
+        <div class="queue" id="t-list"></div>
+      </div>
     </section>
 
     <!-- DECISIONES -->
@@ -219,5 +232,6 @@
 <script src="db.js"></script>
 <script src="decisions.js"></script>
 <script src="radar.js"></script>
+<script src="todo.js"></script>
 </body>
 </html>

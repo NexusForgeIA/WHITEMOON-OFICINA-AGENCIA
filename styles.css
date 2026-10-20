@@ -260,3 +260,12 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .card details.res{margin-top:8px}
 .card details.res summary{cursor:pointer;font-size:12px;color:var(--p2)}
 .card details.res pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:12px;color:var(--text);background:var(--bg3);border-radius:8px;padding:10px;margin:8px 0 0;max-height:260px;overflow:auto}
+
+.btn.sm{padding:5px 12px;font-size:12px;margin-left:8px}
+.chip-f{background:none;border:1px solid var(--border);color:var(--muted);border-radius:99px;padding:5px 12px;font:inherit;font-size:12px;cursor:pointer}
+.chip-f.on{color:var(--text);border-color:var(--p2);background:rgba(124,77,255,.14)}
+.tl{display:grid;gap:6px}
+.tl .q{align-items:flex-start;flex-direction:column;gap:4px}
+.tl .q details summary{cursor:pointer;color:var(--p2);font-size:12px}
+.tl .q pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:12px;background:var(--bg3);border-radius:8px;padding:10px;margin:6px 0 0;max-height:240px;overflow:auto}
+.tag-v{color:var(--g)}.tag-d{color:var(--muted)}

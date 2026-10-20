@@ -3,7 +3,7 @@
 (function(){
 function $(i){return document.getElementById(i)}
 function h(t,c,x,p){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;if(p)p.appendChild(n);return n}
-var list=[],busy=false,autoDone=0,CAP=5,AUTO=3;
+var list=[],busy=false;
 function sb(){return window.WM_SB&&window.WM_SB()}
 function ready(){return window.WM_DB&&window.WM_DB.ready}
 function msg(t){var m=$('r-msg');if(m)m.textContent=t||''}
@@ -51,11 +51,11 @@ function rec(p,dm,tel){
 }
 function prepare(p){
  var dm=demoFor(p),pr=producto(p),tel=p.telefono,r=rec(p,dm,tel),d=draft(p,pr,dm);
- var datos={prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:tel||null,dolor:p.dolor,producto:pr.n,demo:dm?dm.url:null};
+ var datos={prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:tel||null,dolor:p.dolor,producto:pr.n,demo:dm?dm.url:null,triage:'posible_venta'};
  return window.WM_DB.createTarea({agente:'sol',titulo:'Primer contacto: '+nm(p),resultado:d,estado:'revision',requiere_revision:true,datos:datos}).then(function(tid){
   return window.WM_DB.createDecision({tarea_id:tid,agente:'sol',asunto:'¿Enviar primer contacto a '+nm(p)+'?',
    contexto:(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor||0)+'/100 · '+pr.n+' ('+pr.why+')'+(dm?' · demo: '+dm.label:' · sin demo de su sector'),
-   resumen_luna:'Sol ha preparado el borrador con señales del Radar (automáticas, sin verificar a mano). Cumple las reglas: sin precios, sin cifras de rendimiento, con salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
+   resumen_luna:'Sol lo ha evaluado y cree que es una posible venta: móvil, oportunidad alta y demo de su sector. Las señales del Radar son automáticas y sin verificar a mano. El borrador no lleva precios ni cifras de rendimiento y tiene salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
    recomendacion:r[0]+'. '+r[1],opciones:['Aprobar para enviar','Descartar prospecto','Posponer']});
  });
 }
@@ -82,26 +82,59 @@ function load(){
   var done={};w.forEach(function(x){if(x.datos&&x.datos.prospecto_id)done[x.datos.prospecto_id]=1});
   var k=window.WM_DEC&&window.WM_DEC.knownProspects()||{};Object.keys(k).forEach(function(i){done[i]=1});
   list.forEach(function(p){p._done=!!done[p.id]});
-  msg('');draw();auto();
+  msg('');draw();startTriage();leads();
  }).catch(function(e){msg('No se pudo leer el Radar: '+(e.message||e))});
 }
-function pick(n){return list.filter(function(p){return !p._done&&esMovil(p.telefono)}).slice(0,n)}
-function run(n,manual){
- if(busy||!ready())return;
- var room=CAP-(window.WM_DEC?window.WM_DEC.pendingReal():0);
- if(room<=0){msg('Ya tienes '+CAP+' decisiones pendientes: resuélvelas y Sol seguirá.');return}
- var todo=pick(Math.min(n,room));
- if(!todo.length){msg('No quedan prospectos con móvil sin trabajar.');return}
- busy=true;var i=0;
+var tri=false,TRIAGE_MAX=40,delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+function motivo(p,dm){
+ if(!p.telefono)return 'sin teléfono';
+ if(!esMovil(p.telefono))return 'teléfono fijo: sin WhatsApp';
+ if((p.dolor||0)<80)return 'oportunidad media ('+(p.dolor==null?'sin dato':p.dolor+'/100')+')';
+ if(!dm&&p.web)return 'no hay demo de su sector ('+(p.sector||'sin sector')+')';
+ return null;
+}
+/* Sol evalúa un prospecto: si parece venta, prepara borrador y se lo pasa a Cris; si no, lo descarta con motivo */
+function evaluar(p){
+ var W=window.WMO,n=nm(p),dm=demoFor(p),m=motivo(p,dm);
+ return W.work('sol','Evaluando a '+n,function(){
+  return delay(3200).then(function(){
+   if(!m)return prepare(p).then(function(){W.log(W.BY.luna,'recibe de Sol una posible venta: '+n,'rev');return{titulo:'Posible venta: '+n,resultado:'Pendiente de tu decisión.',persist:false}});
+   return window.WM_DB.createTarea({agente:'sol',titulo:'Descartado por Sol: '+n,resultado:'Motivo: '+m+'.',estado:'descartada',requiere_revision:false,datos:{prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:p.telefono||null,dolor:p.dolor,triage:'descartado',motivo:m}}).then(function(){return{titulo:'Descartado: '+n+' ('+m+')',resultado:'',persist:false}});
+  });
+ },{accion:'triaje'}).then(function(){p._done=true});
+}
+function startTriage(){
+ if(tri||!ready()||!window.WMO||!window.WMO.isReal()||!window.WM_DEMOS||!window.WM_DEMOS.length)return;
+ var cola=list.filter(function(p){return !p._done}).slice(0,TRIAGE_MAX);
+ if(!cola.length)return;
+ tri=true;var i=0;
  (function next(){
-  if(i>=todo.length){busy=false;msg('Sol ha preparado '+todo.length+' borrador(es). Míralos en Decisiones.');if(window.WM_DEC)window.WM_DEC.reload();draw();return}
-  var p=todo[i++];
-  viaSol(p).then(function(){p._done=true;next()}).catch(function(e){busy=false;msg('Error al preparar: '+(e.message||e))});
+  if(i>=cola.length||!ready()){tri=false;draw();return}
+  evaluar(cola[i++]).then(function(){if(i%5===0)draw();next()}).catch(function(e){tri=false;msg('Error al evaluar: '+(e.message||e))});
  })();
 }
-function auto(){
- if(autoDone||!window.WM_DEMOS||!window.WM_DEMOS.length)return;
- autoDone=1;setTimeout(function(){run(AUTO,false)},1500);
+/* Leads que llegan por los chatbots: la venta más caliente, directos a Cris */
+var leadsBusy=false;
+function leads(){
+ if(leadsBusy||!ready()||!window.WMO||!window.WMO.isReal())return;
+ leadsBusy=true;
+ Promise.all([window.WM_DB.leadsPendientes(),window.WM_DB.worked()]).then(function(x){
+  var known={};x[1].forEach(function(t){if(t.datos&&t.datos.lead_id)known[t.datos.lead_id]=1});
+  var k=window.WM_DEC&&window.WM_DEC.knownLeads?window.WM_DEC.knownLeads():{};Object.keys(k).forEach(function(i){known[i]=1});
+  var nuevos=x[0].filter(function(l){return !known[l.id]}).slice(0,5);
+  var chain=Promise.resolve();
+  nuevos.forEach(function(l){
+   chain=chain.then(function(){return window.WMO.work('sol','Revisando el lead de '+(l.nombre||'un chatbot'),function(){
+    return window.WM_DB.createTarea({agente:'sol',titulo:'Lead entrante: '+(l.nombre||'sin nombre'),resultado:l.mensaje||'',estado:'revision',requiere_revision:true,datos:{lead_id:l.id,nombre:l.nombre,sector:l.sector,telefono:l.telefono||null,triage:'posible_venta',entrante:true}}).then(function(tid){
+     return window.WM_DB.createDecision({tarea_id:tid,agente:'sol',asunto:'Lead entrante: '+(l.nombre||'sin nombre')+(l.sector?' ('+l.sector+')':''),
+      contexto:'Ha escrito en un chatbot de WhiteMoon'+(l.origen?' ('+l.origen+')':'')+' el '+String(l.created_at||'').slice(0,10)+(l.mensaje?'. Mensaje: '+String(l.mensaje).slice(0,300):'.'),
+      resumen_luna:'Es una persona que ha dejado sus datos por iniciativa propia: es la venta más caliente que hay. Conviene responder en minutos.',
+      recomendacion:'Contactar hoy mismo'+(l.telefono?' por WhatsApp o llamada.':'; no dejó teléfono.'),opciones:['Lo contacto yo','Ya atendido','Descartar']});
+    }).then(function(){window.WMO.log(window.WMO.BY.luna,'recibe de Sol un lead entrante: '+(l.nombre||'sin nombre'),'rev');return{titulo:'Lead entrante pasado a Cris: '+(l.nombre||'sin nombre'),resultado:'',persist:false}});
+   },{accion:'lead'})});
+  });
+  return chain;
+ }).catch(function(e){console.warn('leads:',e.message||e)}).then(function(){leadsBusy=false;if(window.WM_DEC)window.WM_DEC.reload()});
 }
 function draw(){
  var off=$('r-off'),app=$('r-app');if(!off)return;
@@ -124,7 +157,9 @@ function draw(){
  });
 }
 document.addEventListener('wm-db-ready',function(){setTimeout(load,800)});
-document.addEventListener('wm-auth',function(){if(!window.WM_AUTH){list=[];autoDone=0;draw()}});
+document.addEventListener('wm-auth',function(){if(!window.WM_AUTH){list=[];draw()}});
+setInterval(function(){if(ready()&&window.WMO&&window.WMO.isReal()&&!tri){load()}},10*60e3);
+setInterval(function(){leads()},4*60e3);
 var rl=$('r-reload');if(rl)rl.addEventListener('click',function(){load()});
 draw();
 })();
