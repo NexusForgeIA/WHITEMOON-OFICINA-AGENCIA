@@ -17,6 +17,14 @@ DB.createDecision=function(row){return sb().from('oficina_decisiones').insert(ro
 DB.loadDecisiones=function(){return sb().from('oficina_decisiones').select('*, tarea:oficina_tareas(id,datos,resultado)').order('created_at',{ascending:false}).limit(60).then(function(r){if(r.error)throw r.error;return r.data||[]})};
 DB.decide=function(id,decision,nota){return sb().from('oficina_decisiones').update({estado:'decidida',decision:decision,nota:nota||null,decidido_at:new Date().toISOString()}).eq('id',id).then(function(r){if(r.error)throw r.error})};
 DB.worked=function(){return sb().from('oficina_tareas').select('datos,estado').not('datos','is',null).in('estado',['revision','hecha']).then(function(r){if(r.error)throw r.error;return r.data||[]})};
+DB.agente=function(body){return sb().functions.invoke('oficina-agente',{body:body}).then(function(r){
+ var data=r.data;
+ if(r.error&&r.error.context&&r.error.context.json){return r.error.context.json().then(function(j){throw new Error(j&&j.error||r.error.message)},function(){throw new Error(r.error.message)})}
+ if(r.error)throw new Error(r.error.message);
+ if(!data||data.ok!==true)throw new Error(data&&data.error||'Respuesta no válida');
+ return data})};
+DB.saveBriefOnly=function(texto,plan){return sb().from('oficina_briefs').insert({texto:texto,plan:plan}).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
+DB.lastIA=function(){var since=new Date(Date.now()-86400000).toISOString();return sb().from('oficina_tareas').select('agente,created_at,datos').gte('created_at',since).not('datos','is',null).then(function(r){if(r.error)throw r.error;return (r.data||[]).filter(function(x){return x.datos&&x.datos.ia})})};
 DB.setEstado=function(id,estado){
  if(!DB.ready||!id)return;
  sb().from('oficina_tareas').update({estado:estado}).eq('id',id).then(function(r){if(r.error)console.warn('oficina: no se pudo guardar',r.error.message)});
@@ -28,9 +36,9 @@ function open(){
  });
 }
 function check(){
- if(!window.WM_AUTH){DB.ready=false;pill('Supabase: sin sesión','');return}
+ if(!window.WM_AUTH){DB.ready=false;pill('Supabase: sin sesión','');document.dispatchEvent(new CustomEvent('wm-db-off'));return}
  sb().rpc('oficina_es_staff').then(function(r){
-  if(r.error||r.data!==true){DB.ready=false;pill('Supabase: sesión sin acceso a la oficina','warn');return}
+  if(r.error||r.data!==true){DB.ready=false;pill('Supabase: sesión sin acceso a la oficina','warn');document.dispatchEvent(new CustomEvent('wm-db-off'));return}
   DB.ready=true;pill('Supabase conectado','ok');open();document.dispatchEvent(new CustomEvent('wm-db-ready'));
  });
 }
