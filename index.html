@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oficina de agentes · WhiteMoon</title>
+<meta name="description" content="Maqueta interactiva de la agencia de agentes de IA de WhiteMoon: director de oficina, ventas, marketing, SEO, atención, onboarding, contabilidad y ciberseguridad.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="side" aria-label="Navegación">
+    <div class="brand"><span class="moon" aria-hidden="true"></span><span>WhiteMoon<small>Oficina de agentes</small></span></div>
+    <nav id="nav">
+      <a href="#oficina" data-view="oficina">Oficina</a>
+      <a href="#equipo" data-view="equipo">Equipo</a>
+      <a href="#tablon" data-view="tablon">Tablón</a>
+      <a href="#ventas" data-view="ventas">Ventas · Scout</a>
+      <a href="#herramientas" data-view="herramientas">Herramientas</a>
+    </nav>
+    <p class="note"><b>Simulación.</b> Los agentes de esta oficina trabajan con tareas de ejemplo. No hay datos reales de clientes ni se envía nada.</p>
+  </aside>
+
+  <main>
+    <header class="top">
+      <h1 id="title">Oficina</h1>
+      <span class="badge">SIMULACIÓN</span>
+      <div class="speed" role="group" aria-label="Velocidad de la simulación">
+        <button data-sp="0" type="button">Pausa</button>
+        <button data-sp="1" type="button" class="on">Normal</button>
+        <button data-sp="2" type="button">Rápido</button>
+      </div>
+    </header>
+
+    <!-- OFICINA -->
+    <section id="oficina" class="view">
+      <div class="kpis" id="kpis"></div>
+      <div class="office-grid">
+        <div class="map-card">
+          <svg id="map" viewBox="0 0 1000 620" role="img" aria-label="Plano de la oficina con los agentes de IA trabajando"></svg>
+          <p class="legend"><span><i class="d work"></i>trabajando</span><span><i class="d idle"></i>libre</span><span><i class="d human"></i>tú (aprobaciones)</span><span class="hintr">Pulsa un agente para ver su ficha</span></p>
+        </div>
+        <div class="side-col">
+          <form id="brief" class="panel" autocomplete="off">
+            <h2>Brief para la directora</h2>
+            <label>Qué necesitas<input id="brief-t" maxlength="160" placeholder="Ej.: borradores de correo para peluquerías y un vídeo de demo"></label>
+            <button class="btn" type="submit">Enviar a Luna</button>
+            <p class="hint">Luna reparte el brief por palabras clave (simulado, todavía sin IA). Lo que genere un entregable pasa por tu revisión.</p>
+            <div id="plan" class="plan" aria-live="polite"></div>
+          </form>
+          <div class="panel feedp">
+            <h2>Actividad</h2>
+            <ul id="feed" class="feed" aria-live="off"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EQUIPO -->
+    <section id="equipo" class="view" hidden>
+      <p class="lead">Una agencia completa: una directora que coordina y siete especialistas. Cada ficha dice qué hace, qué no hace y qué parte es real hoy.</p>
+      <div id="team" class="team"></div>
+    </section>
+
+    <!-- TABLON -->
+    <section id="tablon" class="view" hidden>
+      <div class="board" id="board"></div>
+      <p class="hint">Las tareas de ventas y marketing terminan en «Para tu revisión»: nada sale sin que tú lo apruebes.</p>
+    </section>
+
+    <!-- VENTAS · SCOUT -->
+    <section id="ventas" class="view" hidden>
+      <p class="lead">El departamento de ventas de la oficina es Scout CRM. Aquí ves los leads reales de <code>leads_web</code> (solo tras iniciar sesión) y desde aquí abres Scout completo.</p>
+      <div class="panel wide" id="v-login">
+        <h2>Inicia sesión para ver tus leads</h2>
+        <form id="v-form" autocomplete="on">
+          <label>Email<input type="email" id="v-email" autocomplete="username" required></label>
+          <label>Contraseña<input type="password" id="v-pass" autocomplete="current-password" required></label>
+          <div class="row"><button class="btn" type="submit">Entrar</button><a class="btn ghost" href="https://nexusforgeia.github.io/WHITEMOON-CRM-EMPRESA/" target="_blank" rel="noopener">Abrir Scout completo</a></div>
+          <p class="hint" id="v-msg" role="status">Login real con Supabase Auth: la contraseña no se guarda y la sesión se cierra al cerrar la pestaña. Sin sesión, la base de datos no devuelve ningún lead.</p>
+        </form>
+      </div>
+      <div id="v-app" hidden>
+        <div class="kpis" id="v-kpis"></div>
+        <div class="row" style="margin-bottom:14px"><button class="btn ghost" id="v-reload" type="button">Actualizar</button><button class="btn ghost" id="v-out" type="button">Cerrar sesión</button><a class="btn" href="https://nexusforgeia.github.io/WHITEMOON-CRM-EMPRESA/" target="_blank" rel="noopener">Abrir Scout completo</a></div>
+        <div class="queue" id="v-list"></div>
+      </div>
+    </section>
+
+    <!-- HERRAMIENTAS -->
+    <section id="herramientas" class="view" hidden>
+      <div class="tabs" id="tools-nav" role="tablist">
+        <button data-tool="t-ventas" class="on" type="button">Borradores de venta</button>
+        <button data-tool="t-marketing" type="button">Guion de vídeo</button>
+        <button data-tool="t-demos" type="button">Demos por sector</button>
+        <button data-tool="t-ciber" type="button">Checklist seguridad</button>
+      </div>
+
+      <div id="t-ventas" class="tool">
+        <div class="cols">
+          <form id="f-venta" class="panel" autocomplete="off">
+            <h2>Nuevo borrador</h2>
+            <label>Negocio<input id="v-neg" required maxlength="80" placeholder="Nombre del negocio"></label>
+            <label>Contacto (opcional)<input id="v-cont" maxlength="60" placeholder="Nombre de la persona"></label>
+            <label>Email de destino<input id="v-mail" type="email" maxlength="120" placeholder="correo@negocio.es"></label>
+            <label>Sector<select id="v-sec"></select></label>
+            <label class="chk"><input id="v-web" type="checkbox"> Ya tiene web</label>
+            <p class="hint" id="v-prod"></p>
+            <button class="btn" type="submit">Generar borrador</button>
+          </form>
+          <div class="panel">
+            <h2>Borrador</h2>
+            <label>Asunto<input id="d-sub"></label>
+            <label>Mensaje<textarea id="d-body" rows="14"></textarea></label>
+            <div class="row">
+              <button class="btn ghost" id="b-copy" type="button">Copiar</button>
+              <a class="btn ghost" id="b-mail" href="#">Abrir en tu correo</a>
+              <button class="btn" id="b-save" type="button">Guardar en cola</button>
+            </div>
+            <p class="hint" id="d-msg" role="status"></p>
+          </div>
+        </div>
+        <h3 class="sub">Cola de borradores</h3>
+        <div id="queue" class="queue"></div>
+      </div>
+
+      <div id="t-marketing" class="tool" hidden>
+        <div class="cols">
+          <form id="f-mk" class="panel">
+            <h2>Idea de vídeo</h2>
+            <label>Sector<select id="m-sec"></select></label>
+            <label>Formato<select id="m-for"><option value="demo">Demo con avatar IA (3 a 6 min)</option><option value="short">Short recortado</option></select></label>
+            <button class="btn" type="submit">Generar esqueleto</button>
+            <p class="hint">Plantillas fijas. Sin cifras ni resultados inventados; la demo es siempre una grabación real de pantalla.</p>
+          </form>
+          <div class="panel"><h2>Esqueleto</h2><label>Título<input id="k-t"></label><label>Guion<textarea id="k-b" rows="14"></textarea></label><button class="btn ghost" id="k-copy" type="button">Copiar</button></div>
+        </div>
+      </div>
+
+      <div id="t-demos" class="tool" hidden>
+        <div class="panel wide">
+          <h2>Demos por sector</h2>
+          <p class="hint">Pega el enlace real de cada demo. Se guardan en este navegador y alimentan los borradores de ventas.</p>
+          <div id="demo-list" class="demos"></div>
+        </div>
+      </div>
+
+      <div id="t-ciber" class="tool" hidden>
+        <div class="panel wide">
+          <h2>Checklist defensiva</h2>
+          <p class="hint">Basada en tus propias reglas. Se guarda solo en este navegador.</p>
+          <ul id="sec" class="check"></ul>
+          <div class="bar"><span id="sec-bar"></span></div>
+          <p class="hint" id="sec-txt"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog id="ficha" aria-labelledby="f-name">
+  <div class="fc" id="fc"></div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="tools.js"></script>
+<script src="office.js"></script>
+<script src="sales.js"></script>
+</body>
+</html>
