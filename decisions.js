@@ -84,15 +84,27 @@ function decide(r,opt,nota){
   if(r.tarea_id){window.WM_DB.setEstado(r.tarea_id,/descart/i.test(opt)?'descartada':(/aprob|enviado|atendid|lo contacto/i.test(opt)?'hecha':'revision'))}
  }).catch(function(e){alert('No se pudo guardar la decisión: '+(e.message||e))});
 }
+function canal(r){
+ var d=r.tarea&&r.tarea.datos;if(!d)return null;
+ var t=d.telefono&&String(d.telefono).replace(/\D/g,'');if(t&&t.length===11&&t.indexOf('34')===0)t=t.slice(2);
+ var mov=!!t&&/^[67]\d{8}$/.test(t),em=d.emails&&d.emails.length;
+ if(em&&!mov)return 'mail';
+ if(mov)return 'wa';
+ if(t||d.lead_id||d.prospecto_id)return 'tel';
+ return null;
+}
 function draw(){
- var p=$('dec-pend'),d=$('dec-done'),sn=$('dec-send');if(!p)return;p.textContent='';d.textContent='';sn.textContent='';
+ var p=$('dec-pend'),d=$('dec-done');if(!p)return;p.textContent='';d.textContent='';
+ var cols={tel:$('dec-tel'),wa:$('dec-wa'),mail:$('dec-mail')},cnt={tel:0,wa:0,mail:0};
+ for(var k in cols)cols[k].textContent='';
  var sends=rows.filter(function(r){return r.estado==='decidida'&&/^(aprob|lo contacto)/i.test(r.decision||'')});
- if(!sends.length)h('p','empty','Nada aprobado pendiente de enviar.',sn);
- sends.forEach(function(r){card(r,sn,false,true)});
- var pend=pendientes();
- if(!pend.length)h('p','empty','Nada pendiente. Cuando un agente no pueda decidir solo, aparecerá aquí.',p);
- pend.forEach(function(r){card(r,p,false)});
- var dn=rows.concat(sims).filter(function(r){return r.estado==='decidida'});
+ var otras=[];
+ sends.forEach(function(r){var c=canal(r)||'tel';cnt[c]++;card(r,cols[c],false,true)});
+ pendientes().forEach(function(r){var c=r.sim?null:canal(r);if(c){cnt[c]++;card(r,cols[c],false)}else otras.push(r)});
+ for(var k in cols){if(!cnt[k])h('p','empty','Nada por ahora.',cols[k]);var n=$('dc-'+k);if(n)n.textContent=String(cnt[k])}
+ if(!otras.length)h('p','empty','Nada pendiente. Cuando un agente no pueda decidir solo, aparecerá aquí.',p);
+ otras.forEach(function(r){card(r,p,false)});
+ var dn=rows.concat(sims).filter(function(r){return r.estado==='decidida'&&!/^(aprob|lo contacto)/i.test(r.decision||'')});
  if(!dn.length)h('p','empty','Todavía no has decidido nada.',d);
  dn.slice(0,20).forEach(function(r){card(r,d,true)});
  badge();
