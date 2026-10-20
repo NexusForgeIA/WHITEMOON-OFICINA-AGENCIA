@@ -56,10 +56,10 @@ function prepare(p){
    recomendacion:r[0]+'. '+r[1],opciones:['Aprobar para enviar','Descartar prospecto','Posponer']});
  });
 }
-function visual(p){
- var W=window.WMO;if(!W)return;var n=(p.nombre||'').split(/[.,]/)[0].trim();
- W.queue('sol',['Radar: preparando contacto para '+n,'Borrador de '+n+' entregado a Luna',false]);
- W.log(window.WMO.BY.luna,'recibe de Sol el borrador de '+n+' y lo manda a Decisiones','rev');
+function viaSol(p){
+ var W=window.WMO,n=(p.nombre||'').split(/[.,]/)[0].trim();
+ if(!W||!W.isReal())return prepare(p);
+ return W.work('sol','Preparando el primer contacto para '+n,function(){return prepare(p).then(function(){W.log(W.BY.luna,'recibe de Sol el borrador de '+n+' y lo manda a Decisiones','rev');return{titulo:'Borrador de '+n+' entregado a Luna',resultado:'Pendiente de tu decisión en Decisiones.',persist:false}})},{accion:'radar'});
 }
 function load(){
  if(!ready())return Promise.resolve();
@@ -85,7 +85,7 @@ function run(n,manual){
  (function next(){
   if(i>=todo.length){busy=false;msg('Sol ha preparado '+todo.length+' borrador(es). Míralos en Decisiones.');if(window.WM_DEC)window.WM_DEC.reload();draw();return}
   var p=todo[i++];
-  prepare(p).then(function(){p._done=true;visual(p);next()}).catch(function(e){busy=false;msg('Error al preparar: '+(e.message||e))});
+  viaSol(p).then(function(){p._done=true;next()}).catch(function(e){busy=false;msg('Error al preparar: '+(e.message||e))});
  })();
 }
 function auto(){
@@ -108,7 +108,7 @@ function draw(){
   if(p._done)h('span','',' · trabajado',q);
   else if(p.telefono){var b=h('button','',"Pedir a Sol",q);b.type='button';b.addEventListener('click',function(){
    if(busy)return;busy=true;b.disabled=true;
-   prepare(p).then(function(){p._done=true;visual(p);busy=false;if(window.WM_DEC)window.WM_DEC.reload();draw()}).catch(function(e){busy=false;b.disabled=false;msg('Error: '+(e.message||e))});
+   viaSol(p).then(function(){p._done=true;busy=false;if(window.WM_DEC)window.WM_DEC.reload();draw()}).catch(function(e){busy=false;b.disabled=false;msg('Error: '+(e.message||e))});
   })}
  });
 }

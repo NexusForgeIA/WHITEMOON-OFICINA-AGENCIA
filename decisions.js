@@ -75,7 +75,7 @@ window.WM_DEC={
  pendingReal:function(){return rows.filter(function(r){return r.estado==='pendiente'}).length},
  knownProspects:function(){var o={};rows.forEach(function(r){var d=r.tarea&&r.tarea.datos;if(d&&d.prospecto_id)o[d.prospecto_id]=1});return o}
 };
-document.addEventListener('wm-db-ready',load);
+document.addEventListener('wm-db-ready',function(){sims=[];load()});
 document.addEventListener('wm-auth',function(){if(!window.WM_AUTH){rows=[];draw()}});
 /* Decisiones simuladas que Luna escala en la simulación (se marcan siempre como ejemplo y no se guardan) */
 document.addEventListener('wm-sim-decision',function(ev){
