@@ -275,3 +275,24 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .dec-cnt{background:rgba(124,77,255,.15);border:1px solid var(--border);border-radius:99px;padding:1px 9px;font-size:12px;color:var(--p2)}
 .dec-cols .dec-list{max-width:none}
 @media(max-width:1100px){.dec-cols{grid-template-columns:1fr}}
+
+/* Oficina isométrica */
+.floor{fill:#0c0c15;stroke:rgba(124,77,255,.3)}
+.slabl{fill:#07070c;stroke:rgba(124,77,255,.2)}.slabr{fill:#050509;stroke:rgba(124,77,255,.2)}
+.rf{fill:color-mix(in srgb,var(--c) 11%,#10101a);stroke:color-mix(in srgb,var(--c) 45%,transparent);stroke-width:1.2}
+.room.glass .rf{stroke-dasharray:6 5}
+.rsl{fill:color-mix(in srgb,var(--c) 14%,#07070c)}.rsr{fill:color-mix(in srgb,var(--c) 8%,#05050a)}
+.rw{fill:color-mix(in srgb,var(--c) 16%,#12121c);stroke:color-mix(in srgb,var(--c) 45%,transparent);stroke-width:1}
+.rwb{fill:color-mix(in srgb,var(--c) 10%,#0d0d16)}
+.room.glass .rw{fill-opacity:.35}
+.bt{fill:color-mix(in srgb,var(--c,#7c4dff) 16%,#1a1a28);stroke:rgba(255,255,255,.09)}
+.bl{fill:color-mix(in srgb,var(--c,#7c4dff) 9%,#0e0e17);stroke:rgba(255,255,255,.06)}
+.br{fill:color-mix(in srgb,var(--c,#7c4dff) 5%,#08080f);stroke:rgba(255,255,255,.05)}
+.dk.bt{fill:#1d1d2c}.dk.bl{fill:#12121c}.dk.br{fill:#0b0b13}
+.rack.bt{fill:#1b2a2a}.rack.bl{fill:#0f1a1a}.rack.br{fill:#0a1111}
+.table2{fill:#0a0a12;stroke:rgba(124,77,255,.3)}
+.pedal{fill:#1a1608;stroke:var(--gold)}
+.scr{fill:#0a0a10;stroke:rgba(255,255,255,.18);transition:.3s}
+.zone{font-size:10.5px}
+.sm{fill:#8a8aa0}
+.zone{paint-order:stroke;stroke:#08080d;stroke-width:3px;stroke-linejoin:round}
