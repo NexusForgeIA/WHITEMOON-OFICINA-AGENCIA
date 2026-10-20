@@ -253,3 +253,5 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .fb.auth .au{margin:8px 0;padding-left:12px;border-left:2px solid var(--border)}
 .fb.auth .au.solo{border-color:var(--g)}.fb.auth .au.luna{border-color:var(--p2)}.fb.auth .au.cris{border-color:var(--gold)}
 .fb.auth .au b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:400;color:var(--muted)}
+
+.brand .logo{width:40px;height:40px;border-radius:10px;object-fit:cover;box-shadow:0 0 18px rgba(124,77,255,.45)}
