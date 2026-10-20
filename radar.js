@@ -69,7 +69,15 @@ function load(){
  msg('Cargando Radar…');
  return (window.WM_DEC?window.WM_DEC.reload():Promise.resolve()).then(function(){return sb().from('prospectos_radar').select('id,nombre,sector,zona,web,telefono,rating,n_resenas,score_auditoria,senales,dolor').eq('estado','analizado').order('dolor',{ascending:false,nullsFirst:false}).limit(120)}).then(function(r){
   if(r.error)throw r.error;
-  list=r.data||[];return window.WM_DB.worked();
+  list=r.data||[];
+  /* descartados en Scout sin web y con móvil: los de más oportunidad (se leen, no se modifican) */
+  return sb().from('prospectos_radar').select('id,nombre,sector,zona,web,telefono,rating,n_resenas,score_auditoria,senales,dolor').eq('estado','descartado').is('web',null).order('n_resenas',{ascending:false,nullsFirst:false}).limit(200);
+ }).then(function(r2){
+  if(r2.error)throw r2.error;
+  var seen={};list.forEach(function(p){seen[p.id]=1});
+  (r2.data||[]).forEach(function(p){if(!seen[p.id]&&esMovil(p.telefono)){p._rec=true;list.push(p)}});
+  list.sort(function(a,b){return (b.dolor||0)-(a.dolor||0)||(b.n_resenas||0)-(a.n_resenas||0)});
+  return window.WM_DB.worked();
  }).then(function(w){
   var done={};w.forEach(function(x){if(x.datos&&x.datos.prospecto_id)done[x.datos.prospecto_id]=1});
   var k=window.WM_DEC&&window.WM_DEC.knownProspects()||{};Object.keys(k).forEach(function(i){done[i]=1});
@@ -100,14 +108,14 @@ function draw(){
  var on=!!ready();off.hidden=on;app.hidden=!on;if(!on)return;
  var k=$('r-kpis');k.textContent='';
  var tel=list.filter(function(p){return esMovil(p.telefono)}).length,hechos=list.filter(function(p){return p._done}).length;
- [[list.length,'Analizados (los 120 con más dolor)'],[tel,'Con móvil (WhatsApp)'],[hechos,'Ya trabajados por Sol'],[window.WM_DEC?window.WM_DEC.pendingReal():0,'Esperan tu decisión']].forEach(function(x){var d=h('div','kpi',null,k);h('span','',String(x[0]),d);h('small','',x[1],d)});
+ [[list.length,'Prospectos cargados (analizados + sin web con móvil)'],[tel,'Con móvil (WhatsApp)'],[hechos,'Ya trabajados por Sol'],[window.WM_DEC?window.WM_DEC.pendingReal():0,'Esperan tu decisión']].forEach(function(x){var d=h('div','kpi',null,k);h('span','',String(x[0]),d);h('small','',x[1],d)});
  var l=$('r-list');l.textContent='';
- if(!list.length)h('p','empty','No hay prospectos analizados.',l);
- list.slice(0,60).forEach(function(p){
+ if(!list.length)h('p','empty','No hay prospectos cargados.',l);
+ list.filter(function(p){return !p._done}).slice(0,60).concat(list.filter(function(p){return p._done}).slice(0,10)).forEach(function(p){
   var q=h('div','q'+(p._done?' done':''),null,l);
   var w=h('div','',null,q);h('b','',nm(p),w);
   var dm=demoFor(p);
-  h('span','',' '+(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor==null?'—':p.dolor)+(p.telefono?(esMovil(p.telefono)?' · móvil':' · fijo (sin WhatsApp)'):' · sin teléfono')+(dm?' · demo: '+dm.label:' · sin demo'),w);
+  h('span','',' '+(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor==null?'—':p.dolor)+(p.telefono?(esMovil(p.telefono)?' · móvil':' · fijo (sin WhatsApp)'):' · sin teléfono')+(p._rec?' · sin web, descartado en Scout':(!p.web?' · sin web':''))+(dm?' · demo: '+dm.label:' · sin demo'),w);
   if(p._done)h('span','',' · trabajado',q);
   else if(esMovil(p.telefono)){var b=h('button','',"Pedir a Sol",q);b.type='button';b.addEventListener('click',function(){
    if(busy)return;busy=true;b.disabled=true;
