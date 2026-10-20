@@ -21,6 +21,8 @@ function card(r,parent,done,send){
  if(r.resumen_luna){var l=h('p','dec-luna',null,c);h('b','','Luna: ',l);l.appendChild(document.createTextNode(r.resumen_luna))}
  if(r.recomendacion){var rc=h('p','dec-rec',null,c);h('b','','Recomienda: ',rc);rc.appendChild(document.createTextNode(r.recomendacion))}
  var d=r.tarea&&r.tarea.datos,draft=r.tarea&&r.tarea.resultado;
+ var tm=d&&d.telefono&&String(d.telefono).replace(/\D/g,'');if(tm&&tm.length===11&&tm.indexOf('34')===0)tm=tm.slice(2);
+ if(d&&d.emails&&d.emails.length&&!(tm&&/^[67]\d{8}$/.test(tm)))draft=null;
  if(draft){
   var det=h('details','dec-draft',null,c);if(send)det.open=true;h('summary','',send?'Borrador para enviar (editable)':'Borrador preparado (no se ha enviado nada)',det);
   var ta=h('textarea','',null,det);ta.value=draft;ta.rows=send?10:9;ta.readOnly=!send;
@@ -34,6 +36,19 @@ function card(r,parent,done,send){
   if(movil){tel='34'+tel;var wa=h('a','mini','Abrir en WhatsApp',rr);wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value);wa.target='_blank';wa.rel='noopener';wa.addEventListener('click',function(){wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value)})}else if(send)h('small','hint','Sin teléfono guardado: cópialo y envíalo por otro canal.',rr)
   h('small','hint','Revisa tú la señal en su web antes de enviar. Lo envías tú, desde tu móvil: la oficina no manda nada.',det);
  }
+ if(d&&d.emails&&d.emails.length){
+  var eb=h('details','dec-draft',null,c);if(send)eb.open=true;h('summary','','Correo para enviar (editable)',eb);
+  var dest=h('p','dec-ctx','Para: '+d.emails.map(function(e){return e.email+(e.tipo==='personal'?' (parece personal: revisa antes)':'')}).join(' · '),eb);
+  var as=h('input','',null,eb);as.type='text';as.value=d.email_asunto||'';as.setAttribute('aria-label','Asunto');
+  var cu=h('textarea','',null,eb);cu.value=d.email_cuerpo||'';cu.rows=11;
+  var er=h('div','row',null,eb);
+  function cp(txt,b,l){(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){b.textContent='Copiado'}).catch(function(){b.textContent='Selecciona y copia'});setTimeout(function(){b.textContent=l},1800)}
+  var c1=h('button','mini','Copiar dirección',er);c1.type='button';c1.addEventListener('click',function(){cp(d.emails[0].email,c1,'Copiar dirección')});
+  var c2=h('button','mini','Copiar asunto',er);c2.type='button';c2.addEventListener('click',function(){cp(as.value,c2,'Copiar asunto')});
+  var c3=h('button','mini','Copiar cuerpo',er);c3.type='button';c3.addEventListener('click',function(){cp(cu.value,c3,'Copiar cuerpo')});
+  var ml=h('a','mini','Abrir en mi correo',er);ml.href='#';ml.addEventListener('click',function(){ml.href='mailto:'+d.emails[0].email+'?subject='+encodeURIComponent(as.value)+'&body='+encodeURIComponent(cu.value)});
+  h('small','hint','Correo comercial a empresas: incluye quién eres y cómo darse de baja. Compruébalo antes de enviar; lo envías tú desde tu correo.',eb);
+ }
  if(!draft&&d&&d.telefono){
   var t2=String(d.telefono).replace(/[^\d]/g,'');if(t2.length===11&&t2.indexOf('34')===0)t2=t2.slice(2);
   var rr2=h('div','row',null,c);
@@ -41,8 +56,8 @@ function card(r,parent,done,send){
   var l2=h('a','mini','Llamar '+d.telefono,rr2);l2.href='tel:+34'+t2;
  }
  if(send){
-  var sr=h('div','row',null,c);var env=h('button','btn',draft?'Marcar como enviado':'Marcar como atendido',sr);env.type='button';
-  env.addEventListener('click',function(){decide(r,draft?'Enviado':'Atendido','')});return c;
+  var sr=h('div','row',null,c);var env=h('button','btn',(draft||(d&&d.emails&&d.emails.length))?'Marcar como enviado':'Marcar como atendido',sr);env.type='button';
+  env.addEventListener('click',function(){decide(r,(draft||(d&&d.emails&&d.emails.length))?'Enviado':'Atendido','')});return c;
  }
  if(done){
   h('p','dec-res','Decidido: '+(r.decision||'—')+(r.nota?' · '+r.nota:''),c);
@@ -82,9 +97,14 @@ function draw(){
  dn.slice(0,20).forEach(function(r){card(r,d,true)});
  badge();
 }
+function safeDraw(){
+ var a=document.activeElement,v=$('decisiones');
+ if(a&&/^(TEXTAREA|INPUT)$/.test(a.tagName)&&v&&v.contains(a)){a.addEventListener('blur',function(){draw()},{once:true});badge();return}
+ draw();
+}
 function load(){
  if(!window.WM_DB||!window.WM_DB.ready)return Promise.resolve();
- return window.WM_DB.loadDecisiones().then(function(r){rows=r;draw()}).catch(function(e){console.warn('decisiones:',e.message||e)});
+ return window.WM_DB.loadDecisiones().then(function(r){rows=r;safeDraw()}).catch(function(e){console.warn('decisiones:',e.message||e)});
 }
 /* API para radar.js */
 window.WM_DEC={
@@ -94,6 +114,7 @@ window.WM_DEC={
  knownProspects:function(){var o={};rows.forEach(function(r){var d=r.tarea&&r.tarea.datos;if(d&&d.prospecto_id)o[d.prospecto_id]=1});return o}
 };
 document.addEventListener('wm-db-ready',function(){sims=[];load()});
+window.addEventListener('hashchange',function(){if(location.hash==='#decisiones')load()});
 document.addEventListener('wm-auth',function(){if(!window.WM_AUTH){rows=[];draw()}});
 /* Decisiones simuladas que Luna escala en la simulación (se marcan siempre como ejemplo y no se guardan) */
 document.addEventListener('wm-sim-decision',function(ev){

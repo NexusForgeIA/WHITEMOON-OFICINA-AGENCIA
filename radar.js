@@ -43,26 +43,39 @@ function draft(p,pr,dm){
  t+='Más info: '+pr.u+' · Sin permanencia. Si os interesa, me contáis y lo vemos; si no, no os molesto más. WhatsApp: 643 199 580.';
  return t;
 }
-function rec(p,dm,tel){
- if(!esMovil(tel))return ['Posponer','Sin móvil: no hay WhatsApp posible.'];
+function emailDraft(p,pr,dm){
+ var n=nm(p),o=senalesTxt(p);
+ var b='Hola,\n\nSoy Cristóbal Martínez, de WhiteMoon Agencia IA (Majadahonda). ';
+ b+=p.web?('He estado mirando la web de '+n+(o.length?' y '+o.join('; ')+'.':'.')):('Buscando '+(p.sector||'negocios como el vuestro')+(p.zona?' en '+p.zona:'')+' no he encontrado una web activa de '+n+'.');
+ b+='\n\n'+(pr.n==='Core Spark Web'?'Os podemos montar una web nueva con el asistente de IA ya dentro.':pr.n==='Agente IA Citas'?'Podemos dejaros un agente que reserve las citas solo, por enlace o QR, sin llamadas.':'Podemos instalaros un asistente de IA en la web que ya tenéis.');
+ if(dm)b+='\n\nPodéis ver un ejemplo aquí (es una demo, no un cliente real): '+dm.url;
+ b+='\n\nMás información: '+pr.u+' · Sin permanencia.\n\nSi os interesa, respondedme a este correo o escribidme por WhatsApp al 643 199 580. Si preferís que no os escriba más, decídmelo y no vuelvo a contactaros.\n\nUn saludo,\nCristóbal Martínez\nWhiteMoon Agencia IA · whitemoon.es';
+ return {asunto:'Una idea para '+n,cuerpo:b};
+}
+function rec(p,dm,tel,ems){
+ if(!esMovil(tel)&&!(ems&&ems.length))return ['Posponer','Sin móvil ni correo: no hay canal directo.'];
  if(!dm)return ['Descartar prospecto','No hay demo de su sector. Antes de contactar habría que crear una.'];
- if((p.dolor||0)>=80)return ['Aprobar para enviar','Alta oportunidad ('+p.dolor+'/100), tiene teléfono y hay demo de su sector.'];
+ if((p.dolor||0)>=80)return ['Aprobar para enviar','Alta oportunidad ('+p.dolor+'/100), canal: '+(esMovil(tel)?'WhatsApp':'')+(esMovil(tel)&&ems&&ems.length?' y ':'')+(ems&&ems.length?'correo':'')+(dm?' y hay demo de su sector.':'.')];
  return ['Posponer','Oportunidad media: mejor tras los de más dolor.'];
 }
-function prepare(p){
- var dm=demoFor(p),pr=producto(p),tel=p.telefono,r=rec(p,dm,tel),d=draft(p,pr,dm);
+function prepare(p,ems){
+ ems=ems||[];
+ var dm=demoFor(p),pr=producto(p),tel=p.telefono,r=rec(p,dm,tel,ems),ed=ems.length?emailDraft(p,pr,dm):null;
+ var d=esMovil(tel)?draft(p,pr,dm):(ed?ed.cuerpo:draft(p,pr,dm));
  var datos={prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:tel||null,dolor:p.dolor,producto:pr.n,demo:dm?dm.url:null,triage:'posible_venta'};
+ if(ems.length){datos.emails=ems;datos.email_asunto=ed.asunto;datos.email_cuerpo=ed.cuerpo}
+ if(p.web)datos.fc=1;
  return window.WM_DB.createTarea({agente:'sol',titulo:'Primer contacto: '+nm(p),resultado:d,estado:'revision',requiere_revision:true,datos:datos}).then(function(tid){
   return window.WM_DB.createDecision({tarea_id:tid,agente:'sol',asunto:'¿Enviar primer contacto a '+nm(p)+'?',
    contexto:(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor||0)+'/100 · '+pr.n+' ('+pr.why+')'+(dm?' · demo: '+dm.label:' · sin demo de su sector'),
-   resumen_luna:'Sol lo ha evaluado y cree que es una posible venta: móvil, oportunidad alta y demo de su sector. Las señales del Radar son automáticas y sin verificar a mano. El borrador no lleva precios ni cifras de rendimiento y tiene salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
+   resumen_luna:'Sol lo ha evaluado y cree que es una posible venta: oportunidad alta, canal de contacto (móvil y/o correo de su web) y demo de su sector. Las señales del Radar son automáticas y sin verificar a mano. El borrador no lleva precios ni cifras de rendimiento y tiene salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
    recomendacion:r[0]+'. '+r[1],opciones:['Aprobar para enviar','Descartar prospecto','Posponer']});
  });
 }
 function viaSol(p){
  var W=window.WMO,n=nm(p);
  if(!W||!W.isReal())return prepare(p);
- return W.work('sol','Preparando el primer contacto para '+n,function(){return prepare(p).then(function(){W.log(W.BY.luna,'recibe de Sol el borrador de '+n+' y lo manda a Decisiones','rev');return{titulo:'Borrador de '+n+' entregado a Luna',resultado:'Pendiente de tu decisión en Decisiones.',persist:false}})},{accion:'radar'});
+ return W.work('sol','Preparando el primer contacto para '+n,function(){return prepare(p).then(function(){if(window.WM_DEC)window.WM_DEC.reload();W.log(W.BY.luna,'recibe de Sol el borrador de '+n+' y lo manda a Decisiones','rev');return{titulo:'Borrador de '+n+' entregado a Luna',resultado:'Pendiente de tu decisión en Decisiones.',persist:false}})},{accion:'radar'});
 }
 function load(){
  if(!ready())return Promise.resolve();
@@ -86,20 +99,23 @@ function load(){
  }).catch(function(e){msg('No se pudo leer el Radar: '+(e.message||e))});
 }
 var tri=false,TRIAGE_MAX=40,delay=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
-function motivo(p,dm){
- if(!p.telefono)return 'sin teléfono';
- if(!esMovil(p.telefono))return 'teléfono fijo: sin WhatsApp';
+function motivoBase(p,dm){
  if((p.dolor||0)<80)return 'oportunidad media ('+(p.dolor==null?'sin dato':p.dolor+'/100')+')';
  if(!dm&&p.web)return 'no hay demo de su sector ('+(p.sector||'sin sector')+')';
+ if(!p.web&&!esMovil(p.telefono))return p.telefono?'sin web y con teléfono fijo: sin canal':'sin web ni teléfono: sin canal';
  return null;
 }
-/* Sol evalúa un prospecto: si parece venta, prepara borrador y se lo pasa a Cris; si no, lo descarta con motivo */
+/* Sol evalúa un prospecto: revisa su web (Firecrawl) para encontrar correo; si hay canal, prepara borrador y se lo pasa a Cris; si no, lo descarta con motivo */
 function evaluar(p){
- var W=window.WMO,n=nm(p),dm=demoFor(p),m=motivo(p,dm);
- return W.work('sol','Evaluando a '+n,function(){
-  return delay(3200).then(function(){
-   if(!m)return prepare(p).then(function(){W.log(W.BY.luna,'recibe de Sol una posible venta: '+n,'rev');return{titulo:'Posible venta: '+n,resultado:'Pendiente de tu decisión.',persist:false}});
-   return window.WM_DB.createTarea({agente:'sol',titulo:'Descartado por Sol: '+n,resultado:'Motivo: '+m+'.',estado:'descartada',requiere_revision:false,datos:{prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:p.telefono||null,dolor:p.dolor,triage:'descartado',motivo:m}}).then(function(){return{titulo:'Descartado: '+n+' ('+m+')',resultado:'',persist:false}});
+ var W=window.WMO,n=nm(p),dm=demoFor(p),m=motivoBase(p,dm);
+ return W.work('sol',(p.web&&!m?'Revisando la web de ':'Evaluando a ')+n,function(){
+  function descarta(mm){return window.WM_DB.createTarea({agente:'sol',titulo:'Descartado por Sol: '+n,resultado:'Motivo: '+mm+'.',estado:'descartada',requiere_revision:false,datos:{prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:p.telefono||null,dolor:p.dolor,triage:'descartado',motivo:mm,fc:p.web&&!m?1:undefined}}).then(function(){return{titulo:'Descartado: '+n+' ('+mm+')',resultado:'',persist:false}})}
+  if(m)return delay(2500).then(function(){return descarta(m)});
+  var ep=p.web?window.WM_DB.correos(p.web).then(function(x){return x.emails||[]}).catch(function(e){console.warn('correos:',e.message||e);return []}):Promise.resolve([]);
+  return Promise.all([ep,delay(3200)]).then(function(x){
+   var ems=x[0];
+   if(!esMovil(p.telefono)&&!ems.length)return descarta(p.telefono?'teléfono fijo y no encontré correo en su web':'sin móvil y no encontré correo en su web');
+   return prepare(p,ems).then(function(){if(window.WM_DEC)window.WM_DEC.reload();W.log(W.BY.luna,'recibe de Sol una posible venta: '+n+(ems.length?' (con correo)':''),'rev');return{titulo:'Posible venta: '+n+(ems.length?' · '+ems[0].email:''),resultado:'Pendiente de tu decisión.',persist:false}});
   });
  },{accion:'triaje'}).then(function(){p._done=true});
 }
