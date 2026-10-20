@@ -217,3 +217,10 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .fav{width:64px;height:64px}
 .tav{width:46px;height:46px}
 #map{overflow:visible}.map-card{overflow:visible}
+
+/* personajes v2 */
+.char{filter:drop-shadow(0 3px 3px rgba(0,0,0,.55))}
+.mouth{opacity:0;transform-box:fill-box;transform-origin:50% 40%}
+.av.talk .mouth{opacity:1;animation:talk .32s ease-in-out infinite alternate}
+.av.talk .smile{opacity:0}
+@keyframes talk{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
