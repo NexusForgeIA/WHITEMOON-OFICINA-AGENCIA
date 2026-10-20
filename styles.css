@@ -163,3 +163,29 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 @media(max-width:900px){.shell{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px 16px;gap:10px}nav{flex-direction:row;flex-wrap:wrap}.note{display:none}.cols,.board,.two{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.speed{margin-left:0}.legend .hintr{margin-left:0}}
 @media(max-width:600px){.demo{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---- oficina por departamentos ---- */
+.rbox{fill:color-mix(in srgb,var(--c) 5%,transparent);stroke:color-mix(in srgb,var(--c) 38%,transparent);stroke-width:1.2}
+.room.glass .rbox{stroke-dasharray:6 6}
+.room.human .rbox{fill:rgba(245,200,66,.04)}
+.rdot{fill:var(--c)}
+.shelf{fill:#14141f;stroke:rgba(77,163,255,.4)}.shelf2{fill:rgba(77,163,255,.5)}
+.table{fill:#12121c;stroke:rgba(124,77,255,.45)}
+.selring{fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 4;opacity:0;transition:opacity .2s}
+.av.sel .selring{opacity:1;animation:spin 8s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+#agent-panel{border-top:3px solid var(--c)}
+.ap-top{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.ap-top b{font-weight:600;display:block}.ap-top small{color:var(--muted)}
+.ap-st{margin-left:auto;font-size:11px;border:1px solid var(--border);border-radius:99px;padding:3px 10px;color:var(--muted)}
+.ap-st.on{border-color:var(--g);color:var(--g)}
+#agent-panel h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;font-weight:600}
+.ap-task{margin:0 0 8px;font-size:15px}
+.ap-loc{color:var(--muted)}
+.ap-list{margin:0;padding-left:16px;font-size:13px;color:#c9c9d6}
+.ap-list time{color:#6b6b85;font-variant-numeric:tabular-nums}
+#agent-panel .bar span{background:var(--c)}
+#agent-panel .row{margin-top:14px}
+#agent-panel .btn{padding:9px 16px;font-size:13px}
+.team .tc .row{margin-top:auto}
+.team .tc .btn{padding:8px 12px;font-size:12px}
