@@ -11,6 +11,7 @@ function msg(t){var m=$('r-msg');if(m)m.textContent=t||''}
 /* sector libre del Radar -> repo de demo (clave en MAYÚSCULAS como en demos.js) */
 var DEMO_BY=[[/electric|reform|fontaner/,'WHITEMOON-REFORMAS-ELECTRICIDAD'],[/peluquer/,'WHITEMOON-PELUQUERIAS'],[/barber/,'WHITEMOON-BARBERIAS'],[/estetic|uñas|unas|belleza/,'WHITEMOON-ESTETICA'],[/dental|dentist/,'WHITEMOON-CLINICAS-DENTALES'],[/fisio/,'WHITEMOON-FISIO'],[/podolog/,'WHITEMOON-PODOLOGOS'],[/veterin/,'WHITEMOON-VETERINARIOS'],[/taller|mecanic|automovil|recambio/,'WHITEMOON-TALLERES-COCHES'],[/mudanz|transporte/,'WHITEMOON-MUDANZAS'],[/abogad/,'WHITEMOON-ABOGADOS'],[/inmobil/,'WHITEMOON-INMOBILIARIAS'],[/restaur/,'WHITEMOON-RESTAURANTE-DEMO']];
 var CITA=/peluquer|barber|estetic|uñas|unas|dental|dentist|fisio|podolog|taller|clinic|veterin/;
+function esMovil(t){var x=String(t||'').replace(/\D/g,'');if(x.length===11&&x.indexOf('34')===0)x=x.slice(2);return /^[67]\d{8}$/.test(x)}
 function nm(p){return String(p.nombre||'').replace(/\s+(S\.?L\.?U?\.?|S\.?A\.?|S\.?C\.?)\s*$/i,'').trim().slice(0,70)}
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
 function demoFor(p){
@@ -35,14 +36,15 @@ function senalesTxt(p){
 function draft(p,pr,dm){
  var o=senalesTxt(p),n=nm(p);
  var t='Hola, soy Cristóbal, de WhiteMoon (agencia de IA en Majadahonda). ';
- t+='Estuve mirando la web de '+n+(o.length?' y '+o.join('; ')+'. ':'. ');
+ if(!p.web)t+='Buscando '+(p.sector||'negocios como el vuestro')+(p.zona?' en '+p.zona:'')+' no he encontrado una web activa de '+n+'. ';
+ else t+='Estuve mirando la web de '+n+(o.length?' y '+o.join('; ')+'. ':'. ');
  t+=pr.n==='Core Spark Web'?'Os podemos montar una web nueva con el asistente ya dentro. ':pr.n==='Agente IA Citas'?'Podemos dejaros un agente que reserve las citas solo, por enlace o QR, sin llamadas. ':'Podemos instalaros un asistente de IA en la web que ya tenéis. ';
  if(dm)t+='Os he dejado un ejemplo de cómo quedaría en un negocio parecido (es una demo): '+dm.url+' ';
  t+='Más info: '+pr.u+' · Sin permanencia. Si os interesa, me contáis y lo vemos; si no, no os molesto más. WhatsApp: 643 199 580.';
  return t;
 }
 function rec(p,dm,tel){
- if(!tel)return ['Posponer','Sin teléfono: no hay canal directo para enviarlo.'];
+ if(!esMovil(tel))return ['Posponer','Sin móvil: no hay WhatsApp posible.'];
  if(!dm)return ['Descartar prospecto','No hay demo de su sector. Antes de contactar habría que crear una.'];
  if((p.dolor||0)>=80)return ['Aprobar para enviar','Alta oportunidad ('+p.dolor+'/100), tiene teléfono y hay demo de su sector.'];
  return ['Posponer','Oportunidad media: mejor tras los de más dolor.'];
@@ -75,13 +77,13 @@ function load(){
   msg('');draw();auto();
  }).catch(function(e){msg('No se pudo leer el Radar: '+(e.message||e))});
 }
-function pick(n){return list.filter(function(p){return !p._done&&p.telefono}).slice(0,n)}
+function pick(n){return list.filter(function(p){return !p._done&&esMovil(p.telefono)}).slice(0,n)}
 function run(n,manual){
  if(busy||!ready())return;
  var room=CAP-(window.WM_DEC?window.WM_DEC.pendingReal():0);
  if(room<=0){msg('Ya tienes '+CAP+' decisiones pendientes: resuélvelas y Sol seguirá.');return}
  var todo=pick(Math.min(n,room));
- if(!todo.length){msg('No quedan prospectos analizados con teléfono sin trabajar.');return}
+ if(!todo.length){msg('No quedan prospectos con móvil sin trabajar.');return}
  busy=true;var i=0;
  (function next(){
   if(i>=todo.length){busy=false;msg('Sol ha preparado '+todo.length+' borrador(es). Míralos en Decisiones.');if(window.WM_DEC)window.WM_DEC.reload();draw();return}
@@ -97,17 +99,17 @@ function draw(){
  var off=$('r-off'),app=$('r-app');if(!off)return;
  var on=!!ready();off.hidden=on;app.hidden=!on;if(!on)return;
  var k=$('r-kpis');k.textContent='';
- var tel=list.filter(function(p){return p.telefono}).length,hechos=list.filter(function(p){return p._done}).length;
- [[list.length,'Analizados (los 120 con más dolor)'],[tel,'Con teléfono'],[hechos,'Ya trabajados por Sol'],[window.WM_DEC?window.WM_DEC.pendingReal():0,'Esperan tu decisión']].forEach(function(x){var d=h('div','kpi',null,k);h('span','',String(x[0]),d);h('small','',x[1],d)});
+ var tel=list.filter(function(p){return esMovil(p.telefono)}).length,hechos=list.filter(function(p){return p._done}).length;
+ [[list.length,'Analizados (los 120 con más dolor)'],[tel,'Con móvil (WhatsApp)'],[hechos,'Ya trabajados por Sol'],[window.WM_DEC?window.WM_DEC.pendingReal():0,'Esperan tu decisión']].forEach(function(x){var d=h('div','kpi',null,k);h('span','',String(x[0]),d);h('small','',x[1],d)});
  var l=$('r-list');l.textContent='';
  if(!list.length)h('p','empty','No hay prospectos analizados.',l);
  list.slice(0,60).forEach(function(p){
   var q=h('div','q'+(p._done?' done':''),null,l);
   var w=h('div','',null,q);h('b','',nm(p),w);
   var dm=demoFor(p);
-  h('span','',' '+(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor==null?'—':p.dolor)+(p.telefono?'':' · sin teléfono')+(dm?' · demo: '+dm.label:' · sin demo'),w);
+  h('span','',' '+(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor==null?'—':p.dolor)+(p.telefono?(esMovil(p.telefono)?' · móvil':' · fijo (sin WhatsApp)'):' · sin teléfono')+(dm?' · demo: '+dm.label:' · sin demo'),w);
   if(p._done)h('span','',' · trabajado',q);
-  else if(p.telefono){var b=h('button','',"Pedir a Sol",q);b.type='button';b.addEventListener('click',function(){
+  else if(esMovil(p.telefono)){var b=h('button','',"Pedir a Sol",q);b.type='button';b.addEventListener('click',function(){
    if(busy)return;busy=true;b.disabled=true;
    viaSol(p).then(function(){p._done=true;busy=false;if(window.WM_DEC)window.WM_DEC.reload();draw()}).catch(function(e){busy=false;b.disabled=false;msg('Error: '+(e.message||e))});
   })}
