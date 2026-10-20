@@ -28,6 +28,12 @@ DB.lastIA=function(){var since=new Date(Date.now()-86400000).toISOString();retur
 DB.loadTodo=function(){return sb().from('oficina_tareas').select('id,created_at,agente,titulo,resultado,estado,datos').order('created_at',{ascending:false}).limit(250).then(function(r){if(r.error)throw r.error;return r.data||[]})};
 DB.leadsPendientes=function(){return sb().from('leads_web').select('id,nombre,telefono,sector,mensaje,origen,created_at').eq('atendido',false).order('created_at',{ascending:false}).limit(30).then(function(r){if(r.error)throw r.error;return r.data||[]})};
 DB.markLead=function(id){return sb().from('leads_web').update({atendido:true}).eq('id',id).then(function(r){if(r.error)console.warn('lead:',r.error.message)})};
+DB.correos=function(url){return sb().functions.invoke('oficina-correos',{body:{url:url}}).then(function(r){
+ var data=r.data;
+ if(r.error&&r.error.context&&r.error.context.json){return r.error.context.json().then(function(j){throw new Error(j&&j.error||r.error.message)},function(){throw new Error(r.error.message)})}
+ if(r.error)throw new Error(r.error.message);
+ if(!data||data.ok!==true)throw new Error(data&&data.error||'Respuesta no válida');
+ return data})};
 DB.setEstado=function(id,estado){
  if(!DB.ready||!id)return;
  sb().from('oficina_tareas').update({estado:estado}).eq('id',id).then(function(r){if(r.error)console.warn('oficina: no se pudo guardar',r.error.message)});
