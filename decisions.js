@@ -47,7 +47,7 @@ function card(r,parent,done,send){
   var c2=h('button','mini','Copiar asunto',er);c2.type='button';c2.addEventListener('click',function(){cp(as.value,c2,'Copiar asunto')});
   var c3=h('button','mini','Copiar cuerpo',er);c3.type='button';c3.addEventListener('click',function(){cp(cu.value,c3,'Copiar cuerpo')});
   var ml=h('a','mini','Abrir en mi correo',er);ml.href='#';ml.addEventListener('click',function(){ml.href='mailto:'+d.emails[0].email+'?subject='+encodeURIComponent(as.value)+'&body='+encodeURIComponent(cu.value)});
-  h('small','hint','Correo comercial a empresas: incluye quién eres y cómo darse de baja. Compruébalo antes de enviar; lo envías tú desde tu correo.',eb);
+  h('small','hint','El correo termina en «Un saludo,» y tu firma de IONOS va debajo: comprueba que se añade antes de enviar. Incluye cómo darse de baja.',eb);
  }
  if(!draft&&d&&d.telefono){
   var t2=String(d.telefono).replace(/[^\d]/g,'');if(t2.length===11&&t2.indexOf('34')===0)t2=t2.slice(2);

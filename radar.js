@@ -49,7 +49,7 @@ function emailDraft(p,pr,dm){
  b+=p.web?('He estado mirando la web de '+n+(o.length?' y '+o.join('; ')+'.':'.')):('Buscando '+(p.sector||'negocios como el vuestro')+(p.zona?' en '+p.zona:'')+' no he encontrado una web activa de '+n+'.');
  b+='\n\n'+(pr.n==='Core Spark Web'?'Os podemos montar una web nueva con el asistente de IA ya dentro.':pr.n==='Agente IA Citas'?'Podemos dejaros un agente que reserve las citas solo, por enlace o QR, sin llamadas.':'Podemos instalaros un asistente de IA en la web que ya tenéis.');
  if(dm)b+='\n\nPodéis ver un ejemplo aquí (es una demo, no un cliente real): '+dm.url;
- b+='\n\nMás información: '+pr.u+' · Sin permanencia.\n\nSi os interesa, respondedme a este correo o escribidme por WhatsApp al 643 199 580. Si preferís que no os escriba más, decídmelo y no vuelvo a contactaros.\n\nUn saludo,\nCristóbal Martínez\nWhiteMoon Agencia IA · whitemoon.es';
+ b+='\n\nMás información: '+pr.u+' · Sin permanencia.\n\nSi os interesa, respondedme a este correo o escribidme por WhatsApp al 643 199 580. Si preferís que no os escriba más, decídmelo y no vuelvo a contactaros.\n\nUn saludo,';
  return {asunto:'Una idea para '+n,cuerpo:b};
 }
 function rec(p,dm,tel,ems){

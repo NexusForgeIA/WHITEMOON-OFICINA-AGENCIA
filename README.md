@@ -21,3 +21,6 @@ No hay claves secretas en el cliente (solo la publishable de Supabase).
 - **Consultas a Dirección (simuladas):** los agentes van al despacho de Luna; ella resuelve lo que cae en las reglas y escala el resto. Lo escalado en la simulación aparece en Decisiones como *ejemplo* y no se guarda.
 - **Decisiones (`decisions.js`):** bandeja de lo que decides tú (tabla `oficina_decisiones`, solo staff). Aprobar/Descartar/Posponer, nota opcional.
 - **Radar (`radar.js`):** con sesión de staff, Sol lee `prospectos_radar` (analizados, por dolor), elige la demo del sector y el producto, y deja un borrador en Decisiones. Máximo 5 pendientes; no envía nada, el envío lo haces tú (copiar o enlace de WhatsApp). Las señales del Radar son automáticas: verifica en su web antes de enviar.
+
+## Envío de correos
+Los correos preparados por Sol no llevan firma en el cuerpo: terminan en «Un saludo,». La firma la añade el webmail de IONOS. Regla de Cris: nunca se envía un correo sin su firma; si no aparece al abrir el correo, se inserta o no se envía.
