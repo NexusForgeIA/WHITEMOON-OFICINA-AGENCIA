@@ -11,6 +11,7 @@ function msg(t){var m=$('r-msg');if(m)m.textContent=t||''}
 /* sector libre del Radar -> repo de demo (clave en MAYÚSCULAS como en demos.js) */
 var DEMO_BY=[[/electric|reform|fontaner/,'WHITEMOON-REFORMAS-ELECTRICIDAD'],[/peluquer/,'WHITEMOON-PELUQUERIAS'],[/barber/,'WHITEMOON-BARBERIAS'],[/estetic|uñas|unas|belleza/,'WHITEMOON-ESTETICA'],[/dental|dentist/,'WHITEMOON-CLINICAS-DENTALES'],[/fisio/,'WHITEMOON-FISIO'],[/podolog/,'WHITEMOON-PODOLOGOS'],[/veterin/,'WHITEMOON-VETERINARIOS'],[/taller|mecanic|automovil|recambio/,'WHITEMOON-TALLERES-COCHES'],[/mudanz|transporte/,'WHITEMOON-MUDANZAS'],[/abogad/,'WHITEMOON-ABOGADOS'],[/inmobil/,'WHITEMOON-INMOBILIARIAS'],[/restaur/,'WHITEMOON-RESTAURANTE-DEMO']];
 var CITA=/peluquer|barber|estetic|uñas|unas|dental|dentist|fisio|podolog|taller|clinic|veterin/;
+function nm(p){return String(p.nombre||'').replace(/\s+(S\.?L\.?U?\.?|S\.?A\.?|S\.?C\.?)\s*$/i,'').trim().slice(0,70)}
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
 function demoFor(p){
  var s=norm(p.sector),D=window.WM_DEMOS||[];
@@ -32,7 +33,7 @@ function senalesTxt(p){
  return o;
 }
 function draft(p,pr,dm){
- var o=senalesTxt(p),n=(p.nombre||'').split(/[.,]/)[0].trim();
+ var o=senalesTxt(p),n=nm(p);
  var t='Hola, soy Cristóbal, de WhiteMoon (agencia de IA en Majadahonda). ';
  t+='Estuve mirando la web de '+n+(o.length?' y '+o.join('; ')+'. ':'. ');
  t+=pr.n==='Core Spark Web'?'Os podemos montar una web nueva con el asistente ya dentro. ':pr.n==='Agente IA Citas'?'Podemos dejaros un agente que reserve las citas solo, por enlace o QR, sin llamadas. ':'Podemos instalaros un asistente de IA en la web que ya tenéis. ';
@@ -49,15 +50,15 @@ function rec(p,dm,tel){
 function prepare(p){
  var dm=demoFor(p),pr=producto(p),tel=p.telefono,r=rec(p,dm,tel),d=draft(p,pr,dm);
  var datos={prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:tel||null,dolor:p.dolor,producto:pr.n,demo:dm?dm.url:null};
- return window.WM_DB.createTarea({agente:'sol',titulo:'Primer contacto: '+(p.nombre||'').split(/[.,]/)[0].trim(),resultado:d,estado:'revision',requiere_revision:true,datos:datos}).then(function(tid){
-  return window.WM_DB.createDecision({tarea_id:tid,agente:'sol',asunto:'¿Enviar primer contacto a '+(p.nombre||'').split(/[.,]/)[0].trim()+'?',
+ return window.WM_DB.createTarea({agente:'sol',titulo:'Primer contacto: '+nm(p),resultado:d,estado:'revision',requiere_revision:true,datos:datos}).then(function(tid){
+  return window.WM_DB.createDecision({tarea_id:tid,agente:'sol',asunto:'¿Enviar primer contacto a '+nm(p)+'?',
    contexto:(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor||0)+'/100 · '+pr.n+' ('+pr.why+')'+(dm?' · demo: '+dm.label:' · sin demo de su sector'),
    resumen_luna:'Sol ha preparado el borrador con señales del Radar (automáticas, sin verificar a mano). Cumple las reglas: sin precios, sin cifras de rendimiento, con salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
    recomendacion:r[0]+'. '+r[1],opciones:['Aprobar para enviar','Descartar prospecto','Posponer']});
  });
 }
 function viaSol(p){
- var W=window.WMO,n=(p.nombre||'').split(/[.,]/)[0].trim();
+ var W=window.WMO,n=nm(p);
  if(!W||!W.isReal())return prepare(p);
  return W.work('sol','Preparando el primer contacto para '+n,function(){return prepare(p).then(function(){W.log(W.BY.luna,'recibe de Sol el borrador de '+n+' y lo manda a Decisiones','rev');return{titulo:'Borrador de '+n+' entregado a Luna',resultado:'Pendiente de tu decisión en Decisiones.',persist:false}})},{accion:'radar'});
 }
@@ -102,7 +103,7 @@ function draw(){
  if(!list.length)h('p','empty','No hay prospectos analizados.',l);
  list.slice(0,60).forEach(function(p){
   var q=h('div','q'+(p._done?' done':''),null,l);
-  var w=h('div','',null,q);h('b','',(p.nombre||'').split(/[.,]/)[0],w);
+  var w=h('div','',null,q);h('b','',nm(p),w);
   var dm=demoFor(p);
   h('span','',' '+(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor==null?'—':p.dolor)+(p.telefono?'':' · sin teléfono')+(dm?' · demo: '+dm.label:' · sin demo'),w);
   if(p._done)h('span','',' · trabajado',q);

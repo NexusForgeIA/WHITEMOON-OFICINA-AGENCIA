@@ -12,7 +12,7 @@ function badge(){
  if(b){b.hidden=!n;b.textContent=String(n)}
  window.WM_DEC_N=n;if(window.WMO)window.WMO.kpis();
 }
-function card(r,parent,done){
+function card(r,parent,done,send){
  var c=h('article','dec'+(r.sim?' sim':'')+(done?' done':''),null,parent);
  var top=h('div','dec-top',null,c);
  h('b','',r.asunto,top);
@@ -22,14 +22,18 @@ function card(r,parent,done){
  if(r.recomendacion){var rc=h('p','dec-rec',null,c);h('b','','Recomienda: ',rc);rc.appendChild(document.createTextNode(r.recomendacion))}
  var d=r.tarea&&r.tarea.datos,draft=r.tarea&&r.tarea.resultado;
  if(draft){
-  var det=h('details','dec-draft',null,c);h('summary','','Borrador preparado (no se ha enviado nada)',det);
-  var ta=h('textarea','',null,det);ta.value=draft;ta.rows=9;ta.readOnly=true;
+  var det=h('details','dec-draft',null,c);if(send)det.open=true;h('summary','',send?'Borrador para enviar (editable)':'Borrador preparado (no se ha enviado nada)',det);
+  var ta=h('textarea','',null,det);ta.value=draft;ta.rows=send?10:9;ta.readOnly=!send;
   var rr=h('div','row',null,det);
   var cp=h('button','mini','Copiar',rr);cp.type='button';cp.addEventListener('click',function(){
-   (navigator.clipboard?navigator.clipboard.writeText(draft):Promise.reject()).then(function(){cp.textContent='Copiado'}).catch(function(){ta.select();cp.textContent='Selecciona y copia'})});
+   (navigator.clipboard?navigator.clipboard.writeText(ta.value):Promise.reject()).then(function(){cp.textContent='Copiado'}).catch(function(){ta.select();cp.textContent='Selecciona y copia'})});
   var tel=d&&d.telefono&&String(d.telefono).replace(/[^\d]/g,'');
-  if(tel){if(tel.length===9)tel='34'+tel;var wa=h('a','mini','Abrir en WhatsApp',rr);wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(draft);wa.target='_blank';wa.rel='noopener'}
+  if(tel){if(tel.length===9)tel='34'+tel;var wa=h('a','mini','Abrir en WhatsApp',rr);wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value);wa.target='_blank';wa.rel='noopener';wa.addEventListener('click',function(){wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value)})}else if(send)h('small','hint','Sin teléfono guardado: cópialo y envíalo por otro canal.',rr)
   h('small','hint','Revisa tú la señal en su web antes de enviar. Lo envías tú, desde tu móvil: la oficina no manda nada.',det);
+ }
+ if(send){
+  var sr=h('div','row',null,c);var env=h('button','btn','Marcar como enviado',sr);env.type='button';
+  env.addEventListener('click',function(){decide(r,'Enviado','')});return c;
  }
  if(done){
   h('p','dec-res','Decidido: '+(r.decision||'—')+(r.nota?' · '+r.nota:''),c);
@@ -52,11 +56,14 @@ function decide(r,opt,nota){
  if(r.sim){after();return}
  window.WM_DB.decide(r.id,opt,nota).then(function(){
   after();
-  if(r.tarea_id){window.WM_DB.setEstado(r.tarea_id,/descart/i.test(opt)?'descartada':(/aprob/i.test(opt)?'hecha':'revision'))}
+  if(r.tarea_id){window.WM_DB.setEstado(r.tarea_id,/descart/i.test(opt)?'descartada':(/aprob|enviado/i.test(opt)?'hecha':'revision'))}
  }).catch(function(e){alert('No se pudo guardar la decisión: '+(e.message||e))});
 }
 function draw(){
- var p=$('dec-pend'),d=$('dec-done');if(!p)return;p.textContent='';d.textContent='';
+ var p=$('dec-pend'),d=$('dec-done'),sn=$('dec-send');if(!p)return;p.textContent='';d.textContent='';sn.textContent='';
+ var sends=rows.filter(function(r){return r.estado==='decidida'&&/^aprob/i.test(r.decision||'')});
+ if(!sends.length)h('p','empty','Nada aprobado pendiente de enviar.',sn);
+ sends.forEach(function(r){card(r,sn,false,true)});
  var pend=pendientes();
  if(!pend.length)h('p','empty','Nada pendiente. Cuando un agente no pueda decidir solo, aparecerá aquí.',p);
  pend.forEach(function(r){card(r,p,false)});
