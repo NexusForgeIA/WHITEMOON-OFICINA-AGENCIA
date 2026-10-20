@@ -19,6 +19,7 @@
       <a href="#oficina" data-view="oficina">Oficina</a>
       <a href="#equipo" data-view="equipo">Equipo</a>
       <a href="#tablon" data-view="tablon">Tablón</a>
+      <a href="#demos" data-view="demos">Sala de demos</a>
       <a href="#ventas" data-view="ventas">Ventas · Scout</a>
       <a href="#herramientas" data-view="herramientas">Herramientas</a>
     </nav>
@@ -41,10 +42,11 @@
       <div class="kpis" id="kpis"></div>
       <div class="office-grid">
         <div class="map-card">
-          <svg id="map" viewBox="0 0 1000 620" role="img" aria-label="Plano de la oficina con los agentes de IA trabajando"></svg>
-          <p class="legend"><span><i class="d work"></i>trabajando</span><span><i class="d idle"></i>libre</span><span><i class="d human"></i>tú (aprobaciones)</span><span class="hintr">Pulsa un agente para ver su ficha</span></p>
+          <svg id="map" viewBox="0 0 1000 650" role="img" aria-label="Plano de la oficina con los agentes de IA trabajando"></svg>
+          <p class="legend"><span><i class="d work"></i>trabajando</span><span><i class="d idle"></i>libre</span><span><i class="d human"></i>tú (aprobaciones)</span><span class="hintr">Pulsa un agente para ver qué hace ahora</span></p>
         </div>
         <div class="side-col">
+          <div class="panel" id="agent-panel" aria-live="polite"></div>
           <form id="brief" class="panel" autocomplete="off">
             <h2>Brief para la directora</h2>
             <label>Qué necesitas<input id="brief-t" maxlength="160" placeholder="Ej.: borradores de correo para peluquerías y un vídeo de demo"></label>
@@ -70,6 +72,17 @@
     <section id="tablon" class="view" hidden>
       <div class="board" id="board"></div>
       <p class="hint">Las tareas de ventas y marketing terminan en «Para tu revisión»: nada sale sin que tú lo apruebes.</p>
+    </section>
+
+    <!-- SALA DE DEMOS -->
+    <section id="demos" class="view" hidden>
+      <p class="lead">Las demos por sector que ventas puede enseñar. La lista se lee en directo de los repos de la organización en GitHub: si publicas una demo nueva, aparece aquí.</p>
+      <div class="row" style="margin-bottom:16px"><button class="btn ghost" id="d-reload" type="button">Actualizar lista</button><span class="hint" id="d-msg" role="status">Cargando…</span></div>
+      <div id="d-grid" class="team"></div>
+      <div id="d-priv" hidden>
+        <h2 class="sub">Clientes, prospectos y otros repos (solo con sesión)</h2>
+        <div id="d-grid2" class="team"></div>
+      </div>
     </section>
 
     <!-- VENTAS · SCOUT -->
@@ -166,9 +179,14 @@
   <div class="fc" id="fc"></div>
 </dialog>
 
+<dialog id="d-prev" aria-label="Vista previa de la demo">
+  <div class="fc" style="--c:#4da3ff"><div class="fh"><h2 id="d-prev-t" style="font-size:20px">Demo</h2><a class="btn ghost" id="d-prev-o" target="_blank" rel="noopener" style="margin-left:auto">Abrir en pestaña</a><button class="fx" id="d-prev-x" type="button" style="margin-left:8px">Cerrar</button></div><iframe id="d-prev-f" title="Vista previa" style="width:100%;height:60vh;border:1px solid var(--border);border-radius:10px;background:#fff" loading="lazy"></iframe></div>
+</dialog>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="tools.js"></script>
 <script src="office.js"></script>
 <script src="sales.js"></script>
+<script src="demos.js"></script>
 </body>
 </html>

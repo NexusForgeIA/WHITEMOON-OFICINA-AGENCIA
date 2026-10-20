@@ -42,7 +42,7 @@ function load(){
   render(res.data||[]);
  });
 }
-function show(on){$('v-login').hidden=on;$('v-app').hidden=!on}
+function show(on){$('v-login').hidden=on;$('v-app').hidden=!on;window.WM_AUTH=!!on;document.dispatchEvent(new CustomEvent('wm-auth'))}
 function boot(){
  if(!init()){msg('No se pudo cargar Supabase (¿sin conexión?).');return}
  sb.auth.getSession().then(function(r){if(r.data&&r.data.session){show(true);load()}});
