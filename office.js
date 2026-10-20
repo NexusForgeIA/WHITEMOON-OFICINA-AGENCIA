@@ -89,11 +89,11 @@ var AGENTS=[
 var BY={};AGENTS.forEach(function(a){BY[a.id]=a});
 
 /* ---------- ESTADO ---------- */
-var state={real:false,urlLast:{},vegaN:0,consultas:0,speed:1,done:0,approved:0,tasks:[],feed:[],nextId:1,tick:0,sel:'luna'};
+var state={real:false,lastRes:{},urlLast:{},vegaN:0,consultas:0,speed:1,done:0,approved:0,tasks:[],feed:[],nextId:1,tick:0,sel:'luna'};
 AGENTS.forEach(function(a){a.st='idle';a.t=0;a.q=[];a.task=null;a.away=0;a.hist=[];a.t0=1;a.at=''});
 
 /* ---------- NAV ---------- */
-var TITLES={oficina:'Oficina',equipo:'Equipo',decisiones:'Decisiones',radar:'Radar de prospectos',demos:'Sala de demos',ventas:'Ventas · Scout',tablon:'Tablón de tareas',herramientas:'Herramientas'};
+var TITLES={oficina:'Oficina',equipo:'Equipo',decisiones:'Decisiones',todo:'Todo lo que hace la oficina',radar:'Radar de prospectos',demos:'Sala de demos',ventas:'Ventas · Scout',tablon:'Tablón de tareas',herramientas:'Herramientas'};
 function route(){
  var v=(location.hash||'#oficina').slice(1);if(!TITLES[v])v='oficina';
  document.querySelectorAll('.view').forEach(function(s){s.hidden=s.id!==v});
@@ -323,7 +323,7 @@ function drawBoard(){
   var cnt=h('span','n',String(list.length),col.firstChild);
   list.forEach(function(t){
    var a=BY[t.agent],card=h('div','card',null,col);card.style.setProperty('--c',a.c);
-   h('b','',t.col==='curso'?t.title:(t.done||t.title),card);h('small','',a.name+' · '+a.role+(t.dbId?' · guardada':'')+(t.real?'':(state.real?'':' · ejemplo')),card);
+   h('b','',t.col==='curso'?t.title:(t.done||t.title),card);h('small','',a.name+' · '+a.role+(t.dbId?' · guardada':'')+(t.real?'':(state.real?'':' · ejemplo'))+(t.flag?' · con hallazgos':''),card);
    if(t.result){var dt=h('details','res',null,card);h('summary','','Ver resultado',dt);h('pre','',t.result,dt)}
    if(c[0]==='revision'){
     var r=h('div','row',null,card);
@@ -399,12 +399,15 @@ function oldestUrl(){
  ATLAS_URLS.forEach(function(u){var t=state.urlLast[u[1]]||0;if(t<bt){bt=t;best=u}});
  return best;
 }
+var M=60e3;
 var ROUT={
- atlas:{every:4*H,make:function(){var u=oldestUrl();state.urlLast[u[1]]=Date.now();return{title:'Auditando el SEO de '+u[0],accion:'atlas',url:u[1],fn:function(){return window.WM_DB.agente({accion:'atlas',url:u[1]})}}}},
- egida:{every:12*H,make:function(){return{title:'Comprobando cabeceras de seguridad',accion:'egida',fn:function(){return window.WM_DB.agente({accion:'egida'})}}}},
- eco:{every:3*H,make:function(){return{title:'Revisando los leads sin atender',accion:'eco',fn:function(){return window.WM_DB.agente({accion:'eco'})}}}},
- alba:{every:6*H,make:function(){return{title:'Revisando las altas de clientes en curso',accion:'alba',fn:function(){return window.WM_DB.agente({accion:'alba'})}}}},
- vega:{every:8*H,make:function(){
+ atlas:{every:6*M,make:function(){var u=oldestUrl();state.urlLast[u[1]]=Date.now();return{title:'Auditando el SEO de '+u[0],accion:'atlas',url:u[1],fn:function(){return window.WM_DB.agente({accion:'atlas',url:u[1]})}}}},
+ egida:{every:30*M,make:function(){return{title:'Comprobando cabeceras de seguridad',accion:'egida',fn:function(){return window.WM_DB.agente({accion:'egida'})}}}},
+ eco:{every:5*M,make:function(){return{title:'Vigilando los leads de los chatbots',accion:'eco',fn:function(){return window.WM_DB.agente({accion:'eco'})}}}},
+ alba:{every:10*M,make:function(){return{title:'Revisando las altas de clientes en curso',accion:'alba',fn:function(){return window.WM_DB.agente({accion:'alba'})}}}},
+ abaco:{every:10*M,make:function(){return{title:'Ordenando la cartera de clientes',accion:'abaco',fn:function(){return window.WM_DB.agente({accion:'abaco'})}}}},
+ luna:{every:15*M,make:function(){return{title:'Preparando el informe de la jornada',accion:'luna',fn:function(){return window.WM_DB.agente({accion:'luna'})}}}},
+ vega:{every:90*M,make:function(){
   var D=window.WM_DEMOS||[];if(!D.length)return null;
   var d=D[state.vegaN++%D.length];
   var ins='Prepara 3 ideas de vídeo corto (Reel) para enseñar esta demo de WhiteMoon: «'+d.label+'» ('+d.url+'). Para cada idea: gancho de 1 frase, guion de 4 pasos y llamada a la acción. Recuerda que es una demo, no un cliente real: no cuentes resultados ni casos.';
@@ -422,15 +425,15 @@ function realRun(a,it){
 function unwork(a){a.task=null;a.st='idle';a.t=0;gDesk[a.id].classList.remove('work');gAv[a.id].classList.remove('work');bubble(a,'')}
 function realDone(a,t,it,res){
  unwork(a);state.done++;
- var rev=!!res.revisar&&res.persist!==false;
- t.done=res.titulo||it.title;t.result=res.resultado||'';t.review=rev;t.col=rev?'revision':'hecho';
- if(res.persist!==false&&window.WM_DB&&window.WM_DB.ready){
-  window.WM_DB.createTarea({agente:a.id,titulo:t.done,resultado:t.result,estado:rev?'revision':'hecha',requiere_revision:rev,brief_id:it.briefId||null,datos:{ia:res.ia||'det',accion:it.accion||null,url:it.url||null}})
+ t.done=res.titulo||it.title;t.result=res.resultado||'';t.review=false;t.col='hecho';t.flag=!!res.revisar&&res.persist!==false;
+ var key=a.id+'|'+(it.url||it.accion||'')+'|'+t.result;
+ if(res.persist!==false&&window.WM_DB&&window.WM_DB.ready&&state.lastRes[a.id+'|'+(it.url||it.accion||'')]!==key){
+  state.lastRes[a.id+'|'+(it.url||it.accion||'')]=key;
+  window.WM_DB.createTarea({agente:a.id,titulo:t.done,resultado:t.result,estado:'hecha',requiere_revision:false,brief_id:it.briefId||null,datos:{ia:res.ia||'det',accion:it.accion||null,url:it.url||null,hallazgos:!!res.revisar}})
    .then(function(id){t.dbId=id;drawBoard()}).catch(function(e){console.warn('oficina: no se pudo guardar la tarea',e.message||e)});
  }
- a.hist.unshift({time:stamp(),text:t.done,review:rev});if(a.hist.length>8)a.hist.pop();
- if(rev){log(a,t.done,'rev');pulse([a.x,a.y-30],[880,100],'#f5c842');var p=spot('aprob');place(a,p[0],p[1]);a.away=3;a.at=PLACES.aprob[2];bubble(a,'Te lo dejo para revisión')}
- else{log(a,t.done);place(a,a.x,a.y-16);a.at=a.dept}
+ a.hist.unshift({time:stamp(),text:t.done,review:false});if(a.hist.length>8)a.hist.pop();
+ log(a,t.done,t.flag?'rev':'');place(a,a.x,a.y-16);a.at=a.dept;
  if(it.res)it.res(res);
  drawBoard();kpis();renderAgent();
 }
@@ -468,18 +471,18 @@ document.addEventListener('wm-db-ready',function(){
  state.tasks=[];
  AGENTS.forEach(function(a,i){
   if(a.task||a.st==='work')unwork(a);
-  a.q=[];a.hist=[];a.away=0;a.rq=[];a.nextAt=Date.now()+12000+i*9000;place(a,a.x,a.y-16);a.at=a.dept;bubble(a,'');
+  a.q=[];a.hist=[];a.away=0;a.rq=[];a.nextAt=Date.now()+5000+i*6000;place(a,a.x,a.y-16);a.at=a.dept;bubble(a,'');
  });
  if(window.WM_DB&&window.WM_DB.lastIA)window.WM_DB.lastIA().then(function(rows){
   var last={};
   rows.forEach(function(r){var t=new Date(r.created_at).getTime();if(!last[r.agente]||t>last[r.agente])last[r.agente]=t;if(r.datos&&r.datos.url&&(!state.urlLast[r.datos.url]||t>state.urlLast[r.datos.url]))state.urlLast[r.datos.url]=t});
-  AGENTS.forEach(function(a){if(ROUT[a.id]&&last[a.id])a.nextAt=Math.max(last[a.id]+ROUT[a.id].every,Date.now()+12000)});
+  AGENTS.forEach(function(a){if(ROUT[a.id]&&last[a.id])a.nextAt=Math.max(last[a.id]+ROUT[a.id].every,Date.now()+5000)});
  }).catch(function(){});
  drawBoard();kpis();renderAgent();log(BY.luna,'oficina real activada: a partir de ahora cada tarea es de verdad.','ok');
 });
 document.addEventListener('wm-db-off',function(){if(state.real){setMode(false);log(null,'Sesión cerrada: vuelve la simulación.')}});
 
-var REAL_HINT={luna:'Espera tu brief: lo planifica con IA y reparte las tareas.',sol:'Trabaja sobre el Radar: prepara borradores y te los deja en Decisiones.',abaco:'Sin fuente de datos conectada: no trabaja hasta que haya datos reales.',vega:'Prepara ideas de vídeo a partir de las demos.',atlas:'Audita las páginas de whitemoon.es una a una.',eco:'Revisa los leads sin atender.',alba:'Revisa las altas de clientes en curso.',egida:'Comprueba las cabeceras de seguridad públicas.'};
+var REAL_HINT={luna:'Hace el informe de la jornada y planifica tus briefs con IA.',sol:'Evalúa prospectos del Radar y leads entrantes. Solo te pasa lo que parece una venta.',abaco:'Ordena la cartera de clientes. Sin datos contables conectados: no calcula importes.',vega:'Prepara ideas de vídeo a partir de las demos.',atlas:'Audita las páginas de whitemoon.es una a una.',eco:'Vigila los leads de los chatbots.',alba:'Revisa las altas de clientes en curso.',egida:'Comprueba las cabeceras de seguridad públicas.'};
 /* ---------- MOTOR ---------- */
 function start(a,task,fromDirector){
  var def=task||a.work[Math.floor(Math.random()*a.work.length)];
@@ -617,7 +620,7 @@ function renderAgent(){
   h('p','ap-task',a.task.title,p);
   var bar=h('div','bar',null,p),sp=h('span','',null,bar);sp.style.width=Math.round(((a.t0-a.t)/a.t0)*100)+'%';
   h('small','ap-loc','En: '+(a.at||a.dept),p);
- }else h('p','hint',a.away>0?'Va de camino a '+(a.at||'otra sala')+'.':(state.real?(REAL_HINT[a.id]||'Esperando su próxima tarea.'):'Sin tarea en este momento. Coge la siguiente de su cola o del plan de Luna.'),p);
+ }else h('p','hint',a.away>0?'Va de camino a '+(a.at||'otra sala')+'.':(state.real?(REAL_HINT[a.id]||'Esperando su próxima tarea.')+(ROUT[a.id]&&a.nextAt?' Próxima comprobación en '+Math.max(1,Math.ceil((a.nextAt-Date.now())/60000))+' min.':''):'Sin tarea en este momento. Coge la siguiente de su cola o del plan de Luna.'),p);
  h('h3','',"Cola ("+a.q.length+")",p);
  if(a.q.length){var u=h('ul','ap-list',null,p);a.q.forEach(function(q){h('li','',q[0],u)})}else h('p','hint','Cola vacía.',p);
  h('h3','',"Últimas tareas",p);

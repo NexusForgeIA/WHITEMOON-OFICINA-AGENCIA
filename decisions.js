@@ -34,9 +34,15 @@ function card(r,parent,done,send){
   if(movil){tel='34'+tel;var wa=h('a','mini','Abrir en WhatsApp',rr);wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value);wa.target='_blank';wa.rel='noopener';wa.addEventListener('click',function(){wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value)})}else if(send)h('small','hint','Sin teléfono guardado: cópialo y envíalo por otro canal.',rr)
   h('small','hint','Revisa tú la señal en su web antes de enviar. Lo envías tú, desde tu móvil: la oficina no manda nada.',det);
  }
+ if(!draft&&d&&d.telefono){
+  var t2=String(d.telefono).replace(/[^\d]/g,'');if(t2.length===11&&t2.indexOf('34')===0)t2=t2.slice(2);
+  var rr2=h('div','row',null,c);
+  if(/^[67]\d{8}$/.test(t2)){var w2=h('a','mini','Abrir en WhatsApp',rr2);w2.href='https://wa.me/34'+t2;w2.target='_blank';w2.rel='noopener'}
+  var l2=h('a','mini','Llamar '+d.telefono,rr2);l2.href='tel:+34'+t2;
+ }
  if(send){
-  var sr=h('div','row',null,c);var env=h('button','btn','Marcar como enviado',sr);env.type='button';
-  env.addEventListener('click',function(){decide(r,'Enviado','')});return c;
+  var sr=h('div','row',null,c);var env=h('button','btn',draft?'Marcar como enviado':'Marcar como atendido',sr);env.type='button';
+  env.addEventListener('click',function(){decide(r,draft?'Enviado':'Atendido','')});return c;
  }
  if(done){
   h('p','dec-res','Decidido: '+(r.decision||'—')+(r.nota?' · '+r.nota:''),c);
@@ -59,12 +65,13 @@ function decide(r,opt,nota){
  if(r.sim){after();return}
  window.WM_DB.decide(r.id,opt,nota).then(function(){
   after();
-  if(r.tarea_id){window.WM_DB.setEstado(r.tarea_id,/descart/i.test(opt)?'descartada':(/aprob|enviado/i.test(opt)?'hecha':'revision'))}
+  if(r.tarea&&r.tarea.datos&&r.tarea.datos.lead_id&&/atendid/i.test(opt))window.WM_DB.markLead(r.tarea.datos.lead_id);
+  if(r.tarea_id){window.WM_DB.setEstado(r.tarea_id,/descart/i.test(opt)?'descartada':(/aprob|enviado|atendid|lo contacto/i.test(opt)?'hecha':'revision'))}
  }).catch(function(e){alert('No se pudo guardar la decisión: '+(e.message||e))});
 }
 function draw(){
  var p=$('dec-pend'),d=$('dec-done'),sn=$('dec-send');if(!p)return;p.textContent='';d.textContent='';sn.textContent='';
- var sends=rows.filter(function(r){return r.estado==='decidida'&&/^aprob/i.test(r.decision||'')});
+ var sends=rows.filter(function(r){return r.estado==='decidida'&&/^(aprob|lo contacto)/i.test(r.decision||'')});
  if(!sends.length)h('p','empty','Nada aprobado pendiente de enviar.',sn);
  sends.forEach(function(r){card(r,sn,false,true)});
  var pend=pendientes();
@@ -83,6 +90,7 @@ function load(){
 window.WM_DEC={
  reload:load,
  pendingReal:function(){return rows.filter(function(r){return r.estado==='pendiente'}).length},
+ knownLeads:function(){var o={};rows.forEach(function(r){var d=r.tarea&&r.tarea.datos;if(d&&d.lead_id)o[d.lead_id]=1});return o},
  knownProspects:function(){var o={};rows.forEach(function(r){var d=r.tarea&&r.tarea.datos;if(d&&d.prospecto_id)o[d.prospecto_id]=1});return o}
 };
 document.addEventListener('wm-db-ready',function(){sims=[];load()});

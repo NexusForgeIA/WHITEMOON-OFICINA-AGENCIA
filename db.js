@@ -16,7 +16,7 @@ DB.createTarea=function(row){return sb().from('oficina_tareas').insert(row).sele
 DB.createDecision=function(row){return sb().from('oficina_decisiones').insert(row).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
 DB.loadDecisiones=function(){return sb().from('oficina_decisiones').select('*, tarea:oficina_tareas(id,datos,resultado)').order('created_at',{ascending:false}).limit(60).then(function(r){if(r.error)throw r.error;return r.data||[]})};
 DB.decide=function(id,decision,nota){return sb().from('oficina_decisiones').update({estado:'decidida',decision:decision,nota:nota||null,decidido_at:new Date().toISOString()}).eq('id',id).then(function(r){if(r.error)throw r.error})};
-DB.worked=function(){return sb().from('oficina_tareas').select('datos,estado').not('datos','is',null).in('estado',['revision','hecha']).then(function(r){if(r.error)throw r.error;return r.data||[]})};
+DB.worked=function(){return sb().from('oficina_tareas').select('datos,estado').not('datos','is',null).in('estado',['revision','hecha','descartada']).then(function(r){if(r.error)throw r.error;return r.data||[]})};
 DB.agente=function(body){return sb().functions.invoke('oficina-agente',{body:body}).then(function(r){
  var data=r.data;
  if(r.error&&r.error.context&&r.error.context.json){return r.error.context.json().then(function(j){throw new Error(j&&j.error||r.error.message)},function(){throw new Error(r.error.message)})}
@@ -25,6 +25,9 @@ DB.agente=function(body){return sb().functions.invoke('oficina-agente',{body:bod
  return data})};
 DB.saveBriefOnly=function(texto,plan){return sb().from('oficina_briefs').insert({texto:texto,plan:plan}).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
 DB.lastIA=function(){var since=new Date(Date.now()-86400000).toISOString();return sb().from('oficina_tareas').select('agente,created_at,datos').gte('created_at',since).not('datos','is',null).then(function(r){if(r.error)throw r.error;return (r.data||[]).filter(function(x){return x.datos&&x.datos.ia})})};
+DB.loadTodo=function(){return sb().from('oficina_tareas').select('id,created_at,agente,titulo,resultado,estado,datos').order('created_at',{ascending:false}).limit(250).then(function(r){if(r.error)throw r.error;return r.data||[]})};
+DB.leadsPendientes=function(){return sb().from('leads_web').select('id,nombre,telefono,sector,mensaje,origen,created_at').eq('atendido',false).order('created_at',{ascending:false}).limit(30).then(function(r){if(r.error)throw r.error;return r.data||[]})};
+DB.markLead=function(id){return sb().from('leads_web').update({atendido:true}).eq('id',id).then(function(r){if(r.error)console.warn('lead:',r.error.message)})};
 DB.setEstado=function(id,estado){
  if(!DB.ready||!id)return;
  sb().from('oficina_tareas').update({estado:estado}).eq('id',id).then(function(r){if(r.error)console.warn('oficina: no se pudo guardar',r.error.message)});
