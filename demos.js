@@ -12,7 +12,7 @@ var PUBLIC={
  'WHITEMOON-PODOLOGOS':['Podología','clinica'],'WHITEMOON-VETERINARIOS':['Veterinaria',''],'WHITEMOON-AUTOESCUELAS':['Autoescuela',''],
  'WHITEMOON-RESTAURANTE-DEMO':['Restaurante','restaurante'],'WHITEMOON-TATUAJES-DEMO':['Tatuajes',''],'WHITEMOON-GESTORIAS-DEMO':['Gestoría',''],
  'WHITEMOON-ABOGADOS':['Abogados',''],'WHITEMOON-INMOBILIARIAS':['Inmobiliaria','inmobiliaria'],'WHITEMOON-FINCAS-DEMO':['Administración de fincas',''],
- 'WHITEMOON-LOGISTICA-DEMO':['Logística',''],'WHITEMOON-YOGA-PILATES':['Yoga y pilates',''],'WHITEMOON-REFORMAS-ELECTRICIDAD':['Reformas y electricidad','reformas'],
+ 'WHITEMOON-LOGISTICA-DEMO':['Logística',''],'WHITEMOON-MUDANZAS':['Mudanzas',''],'WHITEMOON-YOGA-PILATES':['Yoga y pilates',''],'WHITEMOON-REFORMAS-ELECTRICIDAD':['Reformas y electricidad','reformas'],
  'WHITEMOON-FONTANERIA-GENERAL':['Fontanería','fontaneria'],'WHITEMOON-TIENDA':['Tienda online','tienda']
 };
 var HIDDEN={'WHITEMOON-360-DEMO':1};/* producto retirado: no se ofrece */

@@ -9,7 +9,7 @@ function ready(){return window.WM_DB&&window.WM_DB.ready}
 function msg(t){var m=$('r-msg');if(m)m.textContent=t||''}
 
 /* sector libre del Radar -> repo de demo (clave en MAYÚSCULAS como en demos.js) */
-var DEMO_BY=[[/electric|reform|fontaner/,'WHITEMOON-REFORMAS-ELECTRICIDAD'],[/peluquer/,'WHITEMOON-PELUQUERIAS'],[/barber/,'WHITEMOON-BARBERIAS'],[/estetic|uñas|unas|belleza/,'WHITEMOON-ESTETICA'],[/dental|dentist/,'WHITEMOON-CLINICAS-DENTALES'],[/fisio/,'WHITEMOON-FISIO'],[/podolog/,'WHITEMOON-PODOLOGOS'],[/veterin/,'WHITEMOON-VETERINARIOS'],[/taller|mecanic|automovil|recambio/,'WHITEMOON-TALLERES-COCHES'],[/abogad/,'WHITEMOON-ABOGADOS'],[/inmobil/,'WHITEMOON-INMOBILIARIAS'],[/restaur/,'WHITEMOON-RESTAURANTE-DEMO']];
+var DEMO_BY=[[/electric|reform|fontaner/,'WHITEMOON-REFORMAS-ELECTRICIDAD'],[/peluquer/,'WHITEMOON-PELUQUERIAS'],[/barber/,'WHITEMOON-BARBERIAS'],[/estetic|uñas|unas|belleza/,'WHITEMOON-ESTETICA'],[/dental|dentist/,'WHITEMOON-CLINICAS-DENTALES'],[/fisio/,'WHITEMOON-FISIO'],[/podolog/,'WHITEMOON-PODOLOGOS'],[/veterin/,'WHITEMOON-VETERINARIOS'],[/taller|mecanic|automovil|recambio/,'WHITEMOON-TALLERES-COCHES'],[/mudanz|transporte/,'WHITEMOON-MUDANZAS'],[/abogad/,'WHITEMOON-ABOGADOS'],[/inmobil/,'WHITEMOON-INMOBILIARIAS'],[/restaur/,'WHITEMOON-RESTAURANTE-DEMO']];
 var CITA=/peluquer|barber|estetic|uñas|unas|dental|dentist|fisio|podolog|taller|clinic|veterin/;
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
 function demoFor(p){
