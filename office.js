@@ -110,71 +110,109 @@ document.querySelectorAll('.speed button').forEach(function(b){
 
 /* ---------- MAPA ---------- */
 var svg=$('map'),gAv={},gDesk={},gBub={},gDot={};
-/* ---------- PERSONAJES (SVG propio, originales) ---------- */
+/* ---------- PERSONAJES v2 (SVG propio, originales) ---------- */
 var LOOKS={
- luna:{skin:'#f1c9a5',hair:'#2a1b3d',style:'long',x:['lapel']},
- sol:{skin:'#8d5a3b',hair:'#17120f',style:'curly',x:['tie']},
- vega:{skin:'#e0ac86',hair:'#a0451f',style:'bun',x:['glasses','phones']},
- atlas:{skin:'#c68a62',hair:'#1b1b1b',style:'short',x:['glassesSq','beard']},
- eco:{skin:'#f4d3b5',hair:'#3b2a1e',style:'ponytail',x:['headset']},
- alba:{skin:'#e0ac86',hair:'#d9a441',style:'bob',x:[]},
- abaco:{skin:'#f1c9a5',hair:'#b9b9c6',style:'bald',x:['glasses','tie']},
- egida:{skin:'#c68a62',hair:'#101015',style:'hood',x:['shades']}
+ luna:{skin:'#f3cdb0',hair:'#2b1646',eye:'#6b3fd6',style:'long',x:['lapel','brows','lash']},
+ sol:{skin:'#9a6240',hair:'#15100d',eye:'#3a2414',style:'curly',x:['tie','brows']},
+ vega:{skin:'#e8b690',hair:'#b24a1e',eye:'#2f7d5b',style:'bun',x:['glasses','phones','pocket','brows','lash']},
+ atlas:{skin:'#c98d66',hair:'#1a1a1f',eye:'#2a2a2a',style:'short',x:['glassesSq','beard','lanyard','brows']},
+ eco:{skin:'#f6d8bd',hair:'#4a2d1d',eye:'#2d6fb3',style:'ponytail',x:['headset','polo','brows','lash']},
+ alba:{skin:'#e8b690',hair:'#e0a93f',eye:'#8a5a2b',style:'bob',x:['buttons','brows','lash']},
+ abaco:{skin:'#f3cdb0',hair:'#c9c9d6',eye:'#4a5a7a',style:'bald',x:['glasses','tie','brows']},
+ egida:{skin:'#c98d66',hair:'#101015',eye:'#111',style:'hood',x:['shades','shield']}
 };
 function shade(hex,k){var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;function f(v){return Math.max(0,Math.min(255,Math.round(v*k)))}return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
+function lite(hex,k){var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;function f(v){return Math.max(0,Math.min(255,Math.round(v+(255-v)*k)))}return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
+function buildDefs(){
+ if(document.getElementById('wm-defs'))return;
+ var s=document.createElementNS(NS,'svg');s.setAttribute('id','wm-defs');s.setAttribute('width','0');s.setAttribute('height','0');s.setAttribute('aria-hidden','true');s.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+ var d=el('defs',{},s);
+ AGENTS.forEach(function(a){
+  var L=LOOKS[a.id];
+  var sk=el('radialGradient',{id:'sk-'+a.id,cx:'.38',cy:'.32',r:'.85'},d);el('stop',{offset:0,'stop-color':lite(L.skin,.28)},sk);el('stop',{offset:.55,'stop-color':L.skin},sk);el('stop',{offset:1,'stop-color':shade(L.skin,.78)},sk);
+  var hr=el('linearGradient',{id:'hr-'+a.id,x1:0,y1:0,x2:0,y2:1},d);el('stop',{offset:0,'stop-color':lite(L.hair,.22)},hr);el('stop',{offset:.5,'stop-color':L.hair},hr);el('stop',{offset:1,'stop-color':shade(L.hair,.6)},hr);
+  var ot=el('linearGradient',{id:'ot-'+a.id,x1:0,y1:0,x2:1,y2:1},d);el('stop',{offset:0,'stop-color':lite(a.c,.25)},ot);el('stop',{offset:.5,'stop-color':a.c},ot);el('stop',{offset:1,'stop-color':shade(a.c,.55)},ot);
+ });
+ document.body.appendChild(s);
+}
 function buildChar(a,p,full){
- var L=LOOKS[a.id],c=a.c,dark=shade(c,.55),has=function(x){return L.x.indexOf(x)>=0};
+ var L=LOOKS[a.id],c=a.c,dark=shade(c,.6),id=a.id,has=function(x){return L.x.indexOf(x)>=0};
+ var SK='url(#sk-'+id+')',HR='url(#hr-'+id+')',OT='url(#ot-'+id+')',lin=shade(L.skin,.6);
  var root=el('g',{class:'char'},p);
- if(full)el('ellipse',{cx:0,cy:32,rx:17,ry:4.5,class:'shadow'},root);
+ if(full)el('ellipse',{cx:0,cy:30,rx:19,ry:5,class:'shadow'},root);
  if(full){
   var legs=el('g',{class:'legs'},root);
   var l1=el('g',{class:'leg legL'},legs),l2=el('g',{class:'leg legR'},legs);
-  [[l1,-9],[l2,2]].forEach(function(q){el('rect',{x:q[1],y:6,width:7,height:22,rx:3,fill:'#1b1b2a'},q[0]);el('rect',{x:q[1]-1,y:25,width:9,height:5,rx:2.5,fill:'#0c0c12'},q[0])});
+  [[l1,-10],[l2,2]].forEach(function(q){el('rect',{x:q[1],y:4,width:8,height:21,rx:4,fill:'#20203a'},q[0]);el('path',{d:'M'+(q[1]-1.5)+',24 h11 q1,5 -2,6 h-9 q-2,-1 0,-6z',fill:'#f4f4fa'},q[0]);el('rect',{x:q[1]-1.5,y:28,width:11,height:2,rx:1,fill:c},q[0])});
  }
- // pelo trasero / capucha
- if(L.style==='long')el('rect',{x:-14,y:-50,width:28,height:42,rx:12,fill:L.hair},root);
- if(L.style==='bob')el('rect',{x:-13.5,y:-50,width:27,height:24,rx:10,fill:L.hair},root);
- if(L.style==='ponytail')el('ellipse',{cx:13,cy:-34,rx:4.5,ry:11,fill:L.hair},root);
- if(L.style==='hood')el('ellipse',{cx:0,cy:-40,rx:16,ry:17,fill:'#16161f'},root);
+ // pelo trasero
+ if(L.style==='long')el('path',{d:'M-20,-50 Q-22,-70 0,-70 Q22,-70 20,-50 L22,-14 Q22,-6 14,-8 L-14,-8 Q-22,-6 -22,-14 Z',fill:HR},root);
+ if(L.style==='bob')el('path',{d:'M-20,-50 Q-22,-70 0,-70 Q22,-70 20,-50 L21,-30 Q21,-24 14,-26 L-14,-26 Q-21,-24 -21,-30 Z',fill:HR},root);
+ if(L.style==='ponytail'){el('path',{d:'M16,-56 Q34,-52 30,-26 Q27,-14 22,-20 Q26,-36 15,-44 Z',fill:HR},root);el('circle',{cx:17,cy:-52,r:3.2,fill:c},root)}
+ if(L.style==='hood')el('ellipse',{cx:0,cy:-47,rx:23,ry:24,fill:'#14141d'},root);
  // brazos
  var aL=el('g',{class:'arm armL'},root),aR=el('g',{class:'arm armR'},root);
- [[aL,-19],[aR,12]].forEach(function(q){el('rect',{x:q[1],y:-23,width:7,height:25,rx:3.5,fill:dark},q[0]);el('circle',{cx:q[1]+3.5,cy:3,r:3.6,fill:L.skin},q[0])});
+ [[aL,-21],[aR,13]].forEach(function(q){el('rect',{x:q[1],y:-26,width:8,height:27,rx:4,fill:OT},q[0]);el('rect',{x:q[1],y:-26,width:3,height:27,rx:1.5,fill:'rgba(255,255,255,.18)'},q[0]);el('circle',{cx:q[1]+4,cy:3,r:4.2,fill:SK},q[0])});
  // torso
- el('rect',{x:-14,y:-25,width:28,height:33,rx:9,fill:c},root);
- el('rect',{x:-14,y:-6,width:28,height:3,fill:'rgba(0,0,0,.18)'},root);
- if(has('lapel')){el('path',{d:'M-5,-25 L0,-10 L-10,-6 Z',fill:'#fff',opacity:.9},root);el('path',{d:'M5,-25 L0,-10 L10,-6 Z',fill:'#fff',opacity:.9},root)}
- if(has('tie')){el('path',{d:'M-3,-25 L3,-25 L2,-8 L0,-4 L-2,-8 Z',fill:'#f0f0f5'},root);el('path',{d:'M-5,-26 L0,-20 L5,-26',fill:'none',stroke:'#fff','stroke-width':2},root)}
- if(L.style==='hood')el('path',{d:'M-9,-26 Q0,-17 9,-26',fill:'none',stroke:'#16161f','stroke-width':4},root);
- // cuello y cabeza
- el('rect',{x:-3.5,y:-31,width:7,height:8,rx:2,fill:shade(L.skin,.9)},root);
- el('ellipse',{cx:0,cy:-39,rx:11,ry:12.5,fill:L.skin},root);
+ el('path',{d:'M-14,-24 Q-14,-30 -8,-30 L8,-30 Q14,-30 14,-24 L15,2 Q15,8 9,8 L-9,8 Q-15,8 -15,2 Z',fill:OT},root);
+ el('path',{d:'M-14,-24 Q-14,-30 -8,-30 L-6,-30 L-8,6 L-10,8 Q-15,8 -15,2Z',fill:'rgba(255,255,255,.16)'},root);
+ el('rect',{x:-15,y:3,width:30,height:3,fill:'rgba(0,0,0,.25)'},root);
+ if(has('lapel')){el('path',{d:'M-6,-30 L0,-12 L-12,-4 L-10,-24 Z',fill:'#fff',opacity:.95},root);el('path',{d:'M6,-30 L0,-12 L12,-4 L10,-24 Z',fill:'#fff',opacity:.95},root);el('circle',{cx:0,cy:-4,r:1.6,fill:'#f5c842'},root)}
+ if(has('tie')){el('path',{d:'M-6,-30 L0,-24 L6,-30 Z',fill:'#f4f4fa'},root);el('path',{d:'M-2.6,-26 L2.6,-26 L3.4,-8 L0,-3 L-3.4,-8 Z',fill:shade(c,.4)},root)}
+ if(has('polo')){el('path',{d:'M-7,-30 L0,-22 L7,-30 L4,-31 L0,-26 L-4,-31 Z',fill:'#fff'},root)}
+ if(has('pocket')){el('path',{d:'M-8,-4 L8,-4 L10,6 L-10,6 Z',fill:'rgba(0,0,0,.22)'},root);el('line',{x1:-3,y1:-28,x2:-4,y2:-16,stroke:'#fff','stroke-width':1.2,'stroke-linecap':'round'},root);el('line',{x1:3,y1:-28,x2:4,y2:-16,stroke:'#fff','stroke-width':1.2,'stroke-linecap':'round'},root)}
+ if(has('buttons')){[-22,-14,-6].forEach(function(y){el('circle',{cx:0,cy:y,r:1.4,fill:'#fff6e0'},root)});el('path',{d:'M-6,-30 L0,-24 L6,-30',fill:'none',stroke:'#fff6e0','stroke-width':2},root)}
+ if(has('lanyard')){el('path',{d:'M-6,-30 L-1,-6 M6,-30 L1,-6',stroke:'#4da3ff','stroke-width':1.6,fill:'none'},root);el('rect',{x:-4.5,y:-8,width:9,height:11,rx:1.5,fill:'#fff'},root);el('rect',{x:-3,y:-6,width:6,height:3,fill:'#4da3ff'},root)}
+ if(has('shield')){el('path',{d:'M0,-20 L7,-17 Q7,-8 0,-4 Q-7,-8 -7,-17 Z',fill:'#fff',opacity:.92},root);el('path',{d:'M0,-17 L3.5,-15.5 Q3.5,-10 0,-8 Q-3.5,-10 -3.5,-15.5 Z',fill:c},root)}
+ if(L.style==='hood'){el('path',{d:'M-13,-30 Q0,-20 13,-30 Q16,-24 8,-22 Q0,-14 -8,-22 Q-16,-24 -13,-30Z',fill:'#14141d'},root)}
+ // cuello y orejas
+ el('rect',{x:-4.5,y:-33,width:9,height:8,rx:3,fill:shade(L.skin,.82)},root);
+ el('ellipse',{cx:-17.5,cy:-45,rx:3,ry:4.4,fill:SK},root);el('ellipse',{cx:17.5,cy:-45,rx:3,ry:4.4,fill:SK},root);
+ // cabeza
+ el('ellipse',{cx:0,cy:-46,rx:17.5,ry:18.5,fill:SK},root);
+ el('ellipse',{cx:-6,cy:-56,rx:7,ry:4,fill:'rgba(255,255,255,.18)'},root);
  // pelo frontal
- var cap='M-12,-41 Q-12,-54 0,-54 Q12,-54 12,-41 Q7,-47 0,-46 Q-7,-47 -12,-41 Z';
- if(L.style==='long'||L.style==='bob'||L.style==='ponytail'||L.style==='short')el('path',{d:cap,fill:L.hair},root);
- if(L.style==='bun'){el('path',{d:cap,fill:L.hair},root);el('circle',{cx:0,cy:-56,r:6,fill:L.hair},root)}
- if(L.style==='curly'){[[-9,-47],[-3,-52],[4,-52],[10,-47],[-12,-40],[12,-40]].forEach(function(q){el('circle',{cx:q[0],cy:q[1],r:6,fill:L.hair},root)})}
- if(L.style==='bald'){el('ellipse',{cx:-11,cy:-39,rx:2.6,ry:5.5,fill:L.hair},root);el('ellipse',{cx:11,cy:-39,rx:2.6,ry:5.5,fill:L.hair},root)}
- if(L.style==='hood')el('path',{d:'M-12,-42 Q-11,-53 0,-53 Q11,-53 12,-42 Q8,-46 0,-45.5 Q-8,-46 -12,-42 Z',fill:'#16161f'},root);
+ var fringe='M-18.5,-45 Q-20,-69 0,-69 Q20,-69 18.5,-45 Q14,-57 5,-58 Q0,-50 -9,-56 Q-15,-53 -18.5,-45 Z';
+ if(L.style==='long'||L.style==='bob'||L.style==='ponytail'||L.style==='short'||L.style==='bun'){
+  el('path',{d:fringe,fill:HR},root);
+  el('path',{d:'M-11,-65 Q0,-70 11,-65',fill:'none',stroke:'rgba(255,255,255,.4)','stroke-width':2.4,'stroke-linecap':'round'},root);
+ }
+ if(L.style==='short'){el('path',{d:'M-6,-69 Q4,-76 14,-68 Q8,-66 4,-62Z',fill:HR},root)}
+ if(L.style==='bun'){el('circle',{cx:0,cy:-75,r:8.5,fill:HR},root);el('path',{d:'M-5,-78 Q0,-81 5,-78',fill:'none',stroke:'rgba(255,255,255,.4)','stroke-width':2,'stroke-linecap':'round'},root)}
+ if(L.style==='curly'){[[-13,-62],[-5,-69],[5,-69],[13,-62],[-18,-50],[18,-50],[0,-63]].forEach(function(q){el('circle',{cx:q[0],cy:q[1],r:8,fill:HR},root)});el('path',{d:'M-10,-68 Q0,-73 10,-68',fill:'none',stroke:'rgba(255,255,255,.3)','stroke-width':2.4,'stroke-linecap':'round'},root)}
+ if(L.style==='bald'){el('ellipse',{cx:-17,cy:-47,rx:3.4,ry:7,fill:HR},root);el('ellipse',{cx:17,cy:-47,rx:3.4,ry:7,fill:HR},root);el('ellipse',{cx:-5,cy:-60,rx:6,ry:3,fill:'rgba(255,255,255,.35)'},root)}
+ if(L.style==='hood'){el('path',{d:'M-19,-45 Q-20,-70 0,-70 Q20,-70 19,-45 Q14,-56 0,-56 Q-14,-56 -19,-45Z',fill:'#14141d'},root);el('path',{d:'M-19,-45 Q-20,-70 0,-70',fill:'none',stroke:c,'stroke-width':1.2,opacity:.6},root)}
  // cara
+ if(has('brows')){var bc=shade(L.hair,.9);el('path',{d:'M-11,-52 Q-6.5,-55 -2.5,-52',fill:'none',stroke:bc,'stroke-width':2,'stroke-linecap':'round'},root);el('path',{d:'M2.5,-52 Q6.5,-55 11,-52',fill:'none',stroke:bc,'stroke-width':2,'stroke-linecap':'round'},root)}
  var eyes=el('g',{class:'eyes'},root);
- if(!has('shades')){el('ellipse',{cx:-4.3,cy:-39,rx:1.7,ry:2,fill:'#14141c'},eyes);el('ellipse',{cx:4.3,cy:-39,rx:1.7,ry:2,fill:'#14141c'},eyes)}
- el('path',{d:'M-3.5,-32.5 Q0,-30 3.5,-32.5',fill:'none',stroke:shade(L.skin,.55),'stroke-width':1.3,'stroke-linecap':'round'},root);
- el('ellipse',{cx:-7.5,cy:-35,rx:2.2,ry:1.4,fill:'rgba(255,120,120,.25)'},root);el('ellipse',{cx:7.5,cy:-35,rx:2.2,ry:1.4,fill:'rgba(255,120,120,.25)'},root);
- if(has('beard'))el('path',{d:'M-9,-37 Q-10,-28 0,-26 Q10,-28 9,-37 Q6,-31 0,-31 Q-6,-31 -9,-37 Z',fill:'#1b1b1b',opacity:.92},root);
- if(has('glasses')){el('circle',{cx:-4.6,cy:-39,r:4.4,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('circle',{cx:4.6,cy:-39,r:4.4,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('line',{x1:-0.3,y1:-39,x2:0.3,y2:-39,stroke:'#e8e8f2','stroke-width':1.2},root)}
- if(has('glassesSq')){el('rect',{x:-9.5,y:-42.5,width:8.4,height:7,rx:1.8,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('rect',{x:1.1,y:-42.5,width:8.4,height:7,rx:1.8,fill:'rgba(180,220,255,.12)',stroke:'#e8e8f2','stroke-width':1.2},root);el('line',{x1:-1.1,y1:-39,x2:1.1,y2:-39,stroke:'#e8e8f2','stroke-width':1.2},root)}
- if(has('shades')){el('rect',{x:-10,y:-42.5,width:20,height:7,rx:3,fill:'#0b0b10',stroke:c,'stroke-width':.8},root)}
- if(has('phones')){el('path',{d:'M-12,-42 Q0,-60 12,-42',fill:'none',stroke:'#2a2a3a','stroke-width':3,'stroke-linecap':'round'},root);el('rect',{x:-15,y:-43,width:5,height:10,rx:2.5,fill:'#9d70ff'},root);el('rect',{x:10,y:-43,width:5,height:10,rx:2.5,fill:'#9d70ff'},root)}
- if(has('headset')){el('path',{d:'M-12,-42 Q0,-58 12,-42',fill:'none',stroke:'#2a2a3a','stroke-width':2.6,'stroke-linecap':'round'},root);el('rect',{x:-14.5,y:-44,width:5,height:9,rx:2.5,fill:'#2a2a3a'},root);el('path',{d:'M-12,-35 Q-12,-27 -4,-28',fill:'none',stroke:'#2a2a3a','stroke-width':1.6},root);el('circle',{cx:-4,cy:-28,r:1.8,fill:'#ff7ab6'},root)}
+ if(!has('shades')){
+  [-6.6,6.6].forEach(function(x){
+   el('ellipse',{cx:x,cy:-44,rx:4.3,ry:4.9,fill:'#fff'},eyes);
+   el('circle',{cx:x,cy:-43.6,r:3.1,fill:L.eye},eyes);
+   el('circle',{cx:x,cy:-43.6,r:1.6,fill:'#0b0b10'},eyes);
+   el('circle',{cx:x-1.1,cy:-45,r:1.1,fill:'#fff'},eyes);el('circle',{cx:x+1.2,cy:-42.2,r:.6,fill:'#fff',opacity:.8},eyes);
+   if(has('lash'))el('path',{d:'M'+(x-4.4)+',-45 Q'+x+',-50 '+(x+4.4)+',-45',fill:'none',stroke:'#14141c','stroke-width':1.3,'stroke-linecap':'round'},eyes);
+  });
+ }
+ el('path',{d:'M-1.2,-40 Q0.6,-37.5 1.8,-39.6',fill:'none',stroke:lin,'stroke-width':1.1,'stroke-linecap':'round'},root);
+ el('ellipse',{cx:-11.5,cy:-37.5,rx:3.2,ry:2,fill:'rgba(255,110,120,.32)'},root);el('ellipse',{cx:11.5,cy:-37.5,rx:3.2,ry:2,fill:'rgba(255,110,120,.32)'},root);
+ el('path',{class:'smile',d:'M-4.6,-34.6 Q0,-30.4 4.6,-34.6',fill:'none',stroke:shade(L.skin,.42),'stroke-width':1.7,'stroke-linecap':'round'},root);
+ el('ellipse',{class:'mouth',cx:0,cy:-33,rx:3.4,ry:2.8,fill:'#6b1d2c'},root);
+ if(has('beard')){el('path',{d:'M-15,-44 Q-16,-30 0,-27 Q16,-30 15,-44 Q12,-35 6,-35.5 Q0,-33 -6,-35.5 Q-12,-35 -15,-44Z',fill:HR,opacity:.95},root);el('path',{d:'M-4.6,-35 Q0,-32 4.6,-35',fill:'none',stroke:'#e9b9a0','stroke-width':1.4,'stroke-linecap':'round'},root)}
+ if(has('glasses')){[-6.6,6.6].forEach(function(x){el('circle',{cx:x,cy:-44,r:6.4,fill:'rgba(170,215,255,.14)',stroke:'#eef0ff','stroke-width':1.5},root);el('path',{d:'M'+(x-4)+',-47 Q'+(x-1)+',-49 '+(x+1)+',-48',fill:'none',stroke:'rgba(255,255,255,.7)','stroke-width':1,'stroke-linecap':'round'},root)});el('line',{x1:-0.3,y1:-44,x2:0.3,y2:-44,stroke:'#eef0ff','stroke-width':1.5},root)}
+ if(has('glassesSq')){[[-12.8],[1.8]].forEach(function(q){el('rect',{x:q[0],y:-49,width:11,height:9,rx:2.4,fill:'rgba(170,215,255,.14)',stroke:'#eef0ff','stroke-width':1.5},root)});el('line',{x1:-1.8,y1:-45,x2:1.8,y2:-45,stroke:'#eef0ff','stroke-width':1.5},root)}
+ if(has('shades')){el('path',{d:'M-15,-50 L15,-50 Q16,-41 9,-39.5 Q4,-39 2,-44 L-2,-44 Q-4,-39 -9,-39.5 Q-16,-41 -15,-50Z',fill:'#08080c',stroke:c,'stroke-width':.9},root);el('path',{d:'M-12,-48 L-7,-48 M5,-48 L10,-48',stroke:'rgba(255,255,255,.6)','stroke-width':1.2,'stroke-linecap':'round'},root)}
+ if(has('phones')){el('path',{d:'M-18,-48 Q0,-78 18,-48',fill:'none',stroke:'#1e1e2e','stroke-width':3.4,'stroke-linecap':'round'},root);[-21,15].forEach(function(x){el('rect',{x:x,y:-54,width:6,height:14,rx:3,fill:'#9d70ff',stroke:'#1e1e2e','stroke-width':1},root)})}
+ if(has('headset')){el('path',{d:'M-18,-48 Q0,-76 18,-48',fill:'none',stroke:'#1e1e2e','stroke-width':3,'stroke-linecap':'round'},root);el('rect',{x:-21,y:-54,width:6,height:13,rx:3,fill:'#1e1e2e'},root);el('path',{d:'M-17,-41 Q-16,-31 -6,-32',fill:'none',stroke:'#1e1e2e','stroke-width':2},root);el('circle',{cx:-5.5,cy:-32,r:2.4,fill:'#ff7ab6'},root)}
  return root;
 }
 function portrait(cls,a,sz){
  var d=h('span',cls,null);d.style.setProperty('--c',a.c);
- var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','-24 -60 48 56');s.setAttribute('aria-hidden','true');
+ var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','-26 -76 52 66');s.setAttribute('aria-hidden','true');
  var g=el('g',{},s);buildChar(a,g,false);d.appendChild(s);return d;
 }
 
-var LAYOUT={luna:[500,112,'Dirección'],sol:[185,290,'Ventas'],vega:[735,290,'Marketing y SEO'],atlas:[905,290,'Marketing y SEO'],eco:[100,515,'Clientes'],alba:[270,515,'Clientes'],abaco:[735,515,'Finanzas'],egida:[905,515,'Seguridad']};
+var LAYOUT={luna:[500,118,'Dirección'],sol:[185,290,'Ventas'],vega:[735,290,'Marketing y SEO'],atlas:[905,290,'Marketing y SEO'],eco:[100,515,'Clientes'],alba:[270,515,'Clientes'],abaco:[735,515,'Finanzas'],egida:[905,515,'Seguridad']};
 AGENTS.forEach(function(a){var l=LAYOUT[a.id];a.x=l[0];a.y=l[1];a.dept=l[2]});
 var PLACES={demos:[500,312,'Sala de demos'],datos:[120,176,'Sala de datos'],aprob:[880,172,'Aprobaciones'],meet:[500,495,'Sala de reuniones']};
 var AGENT_LOC={sol:'demos',vega:'datos',atlas:'datos',eco:'datos',alba:'datos',abaco:'datos',egida:'datos'};
@@ -184,6 +222,7 @@ function spot(key){
  return [p[0]+(Math.random()*70-35),p[1]+(Math.random()*16-8)];
 }
 function buildMap(){
+ buildDefs();
  var defs=el('defs',{},svg);
  var gl=el('filter',{id:'glow',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);
  el('feGaussianBlur',{stdDeviation:'6',result:'b'},gl);
@@ -199,7 +238,7 @@ function buildMap(){
   return g;
  }
  // dirección
- room(330,20,340,172,'DIRECCIÓN','glass','#f5c842');
+ room(330,20,340,178,'DIRECCIÓN','glass','#f5c842');
  // datos
  var dg=room(20,20,200,130,'DATOS · SUPABASE','','#00d4aa');
  for(var s=0;s<3;s++){el('rect',{x:42+s*58,y:62,width:44,height:62,rx:6,class:'rack'},dg);el('circle',{cx:64+s*58,cy:76,r:3,class:'led l'+s},dg)}
@@ -230,11 +269,11 @@ function buildMap(){
  AGENTS.forEach(function(a){
   var g=el('g',{class:'av',tabindex:'0',role:'button','aria-label':'Ver qué hace '+a.name+', '+a.role,'data-id':a.id,style:'--c:'+a.c},svg);
   gAv[a.id]=g;
-  el('ellipse',{cx:0,cy:39,rx:30,ry:8,class:'selring'},g);
-  el('ellipse',{cx:0,cy:-10,rx:36,ry:54,class:'halo',filter:'url(#glow)'},g);
-  var cg=el('g',{transform:'scale(1.3)'},g);buildChar(a,cg,true);
-  gDot[a.id]=el('circle',{cx:20,cy:-66,r:5.5,class:'dot'},g);
-  var b=el('g',{class:'bub',transform:'translate(0,-90)'},g);
+  el('ellipse',{cx:0,cy:36,rx:28,ry:8,class:'selring'},g);
+  el('ellipse',{cx:0,cy:-14,rx:36,ry:62,class:'halo',filter:'url(#glow)'},g);
+  var cg=el('g',{transform:'scale(1.1)'},g);buildChar(a,cg,true);
+  gDot[a.id]=el('circle',{cx:24,cy:-78,r:5.5,class:'dot'},g);
+  var b=el('g',{class:'bub',transform:'translate(0,-100)'},g);
   gBub[a.id]={g:b,r:el('rect',{x:-80,y:-18,width:160,height:24,rx:12},b),t:el('text',{y:-2,'text-anchor':'middle'},b,'')};
   place(a,a.x,a.y-16,true);
   g.addEventListener('click',function(){select(a.id)});
@@ -250,7 +289,8 @@ function place(a,x,y,instant){
 }
 function bubble(a,txt){
  var b=gBub[a.id];
- if(!txt){b.g.classList.remove('on');return}
+ if(!txt){b.g.classList.remove('on');gAv[a.id].classList.remove('talk');return}
+ gAv[a.id].classList.add('talk');
  var short=txt.length>34?txt.slice(0,33)+'…':txt;
  b.t.textContent=short;
  var w=Math.max(70,Math.min(230,short.length*6.4+28));
