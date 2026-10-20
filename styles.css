@@ -224,3 +224,5 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .av.talk .mouth{opacity:1;animation:talk .32s ease-in-out infinite alternate}
 .av.talk .smile{opacity:0}
 @keyframes talk{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+.conn{font-size:11px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border);border-radius:99px;padding:4px 12px;text-decoration:none}
+.conn.ok{color:var(--g);border-color:var(--g)}.conn.warn{color:#ff9d6b;border-color:#ff9d6b}

@@ -321,12 +321,12 @@ function drawBoard(){
   var cnt=h('span','n',String(list.length),col.firstChild);
   list.forEach(function(t){
    var a=BY[t.agent],card=h('div','card',null,col);card.style.setProperty('--c',a.c);
-   h('b','',t.title,card);h('small','',a.name+' · '+a.role,card);
+   h('b','',t.title,card);h('small','',a.name+' · '+a.role+(t.dbId?' · guardada':''),card);
    if(c[0]==='revision'){
     var r=h('div','row',null,card);
     var ok=h('button','mini ok','Aprobar',r),no=h('button','mini','Descartar',r);
-    ok.addEventListener('click',function(){t.col='hecho';state.approved++;log(null,'aprobó: '+t.done,'ok');drawBoard();kpis()});
-    no.addEventListener('click',function(){state.tasks=state.tasks.filter(function(x){return x!==t});log(null,'descartó: '+t.done);drawBoard();kpis()});
+    ok.addEventListener('click',function(){t.col='hecho';if(t.dbId&&window.WM_DB)window.WM_DB.setEstado(t.dbId,'hecha');state.approved++;log(null,'aprobó: '+t.done,'ok');drawBoard();kpis()});
+    no.addEventListener('click',function(){if(t.dbId&&window.WM_DB)window.WM_DB.setEstado(t.dbId,'descartada');state.tasks=state.tasks.filter(function(x){return x!==t});log(null,'descartó: '+t.done);drawBoard();kpis()});
    }
   });
  });
@@ -351,7 +351,7 @@ function start(a,task,fromDirector){
   var dm=D[Math.floor(Math.random()*D.length)];
   def=['Eligiendo la demo de '+dm.label+' para un prospecto','Demo «'+dm.label+'» elegida para un borrador',true];
  }
- var t={id:state.nextId++,agent:a.id,title:def[0],done:def[1],review:def[2],col:'curso',t0:Date.now()};
+ var t={id:state.nextId++,agent:a.id,title:def[0],done:def[1],review:def[2],col:'curso',t0:Date.now(),dbId:def[3]||null};
  state.tasks.push(t);a.task=t;a.st='work';a.t=a.t0=3+Math.floor(Math.random()*4);
  var loc=AGENT_LOC[a.id];
  if(loc&&Math.random()<0.7){var p=spot(loc);place(a,p[0],p[1]);a.at=PLACES[loc][2]}else{a.at=a.dept;place(a,a.x,a.y-16)}
@@ -366,6 +366,7 @@ function finish(a){
  gDesk[a.id].classList.remove('work');gAv[a.id].classList.remove('work');bubble(a,'');
  if(t){
   state.done++;
+  if(t.dbId&&window.WM_DB)window.WM_DB.setEstado(t.dbId,t.review?'revision':'hecha');
   a.hist.unshift({time:stamp(),text:t.done,review:t.review});if(a.hist.length>8)a.hist.pop();
   if(t.review){t.col='revision';log(a,t.done,'rev');pulse([a.x,a.y-30],[880,100],'#f5c842');var p=spot('aprob');place(a,p[0],p[1]);a.away=3;a.at=PLACES.aprob[2];bubble(a,'Te lo dejo para revisión')}
   else{t.col='hecho';log(a,t.done);place(a,a.x,a.y-16);a.at=a.dept}
@@ -416,13 +417,32 @@ $('brief').addEventListener('submit',function(e){
  log(BY.luna,'recibe un brief: «'+(txt.length>60?txt.slice(0,59)+'…':txt)+'»');
  pulse([880,100],[BY.luna.x,BY.luna.y],'#f5c842');
  h('p','hint','Plan de Luna ('+hits.length+' tarea'+(hits.length>1?'s':'')+'):',plan);
- hits.forEach(function(r){
-  var a=BY[r[0]];a.q.push(r[2]);
-  var chip=h('span','chip',a.name+' · '+a.role,plan);chip.style.setProperty('--c',a.c);
- });
+ var defs=hits.map(function(r){return r[2].slice(0,3)});
+ function enqueue(ids){
+  hits.forEach(function(r,i){
+   var a=BY[r[0]];if(ids&&ids[i])defs[i][3]=ids[i];
+   a.q.push(defs[i]);
+   var chip=h('span','chip',a.name+' · '+a.role,plan);chip.style.setProperty('--c',a.c);
+  });
+ }
+ if(window.WM_DB&&window.WM_DB.ready){
+  window.WM_DB.saveBrief(txt,hits.map(function(r){return{agent:r[0],title:r[2][0],review:r[2][2]}})).then(function(rows){
+   var ids=hits.map(function(r,i){return rows[i]&&rows[i].id});
+   enqueue(ids);h('p','hint','Brief y tareas guardados en Supabase.',plan);
+  }).catch(function(err){enqueue();h('p','hint','No se pudo guardar en Supabase ('+(err&&err.message||'error')+'). Sigue en local.',plan)});
+ }else enqueue();
  $('brief-t').value='';
 });
-
+document.addEventListener('wm-db-open',function(ev){
+ var seen={};state.tasks.forEach(function(t){if(t.dbId)seen[t.dbId]=1});
+ BY.luna&&AGENTS.forEach(function(a){a.q.forEach(function(d){if(d[3])seen[d[3]]=1})});
+ (ev.detail||[]).forEach(function(r){
+  if(seen[r.id]||!BY[r.agente])return;
+  if(r.estado==='revision'){state.tasks.push({id:state.nextId++,agent:r.agente,title:r.titulo,done:r.resultado||r.titulo,review:true,col:'revision',dbId:r.id})}
+  else BY[r.agente].q.push([r.titulo,'Completada',r.requiere_revision,r.id]);
+ });
+ drawBoard();kpis();log(null,'Supabase conectado: tareas pendientes cargadas.');
+});
 
 /* ---------- AGENTE SELECCIONADO ---------- */
 function select(id){

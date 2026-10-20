@@ -10,3 +10,8 @@ Panel público (GitHub Pages) con la agencia de IA de WhiteMoon: directora de of
 
 Prueba local: `python3 -m http.server` en esta carpeta.
 No hay claves secretas en el cliente (solo la publishable de Supabase).
+
+## Supabase (proyecto compartido, tablas con prefijo `oficina_*`)
+- `oficina_staff` (quién puede usar la oficina), `oficina_briefs`, `oficina_tareas`. RLS: solo usuarios de `oficina_staff` (comprobado con SQL: anon y otros usuarios autenticados, bloqueados).
+- Con sesión iniciada en Ventas, los briefs a Luna y sus tareas se guardan, y las aprobaciones/descartes también. Sin sesión, todo es simulación local.
+- Los resultados de las tareas siguen sin generarse con IA: es el siguiente paso (Edge Function con Claude Haiku, clave en Supabase Secrets).
