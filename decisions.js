@@ -28,7 +28,10 @@ function card(r,parent,done,send){
   var cp=h('button','mini','Copiar',rr);cp.type='button';cp.addEventListener('click',function(){
    (navigator.clipboard?navigator.clipboard.writeText(ta.value):Promise.reject()).then(function(){cp.textContent='Copiado'}).catch(function(){ta.select();cp.textContent='Selecciona y copia'})});
   var tel=d&&d.telefono&&String(d.telefono).replace(/[^\d]/g,'');
-  if(tel){if(tel.length===9)tel='34'+tel;var wa=h('a','mini','Abrir en WhatsApp',rr);wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value);wa.target='_blank';wa.rel='noopener';wa.addEventListener('click',function(){wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value)})}else if(send)h('small','hint','Sin teléfono guardado: cópialo y envíalo por otro canal.',rr)
+  if(tel&&tel.length===11&&tel.indexOf('34')===0)tel=tel.slice(2);
+  var movil=!!tel&&/^[67]\d{8}$/.test(tel);
+  if(tel&&!movil){var fj=h('a','mini','Llamar (fijo, sin WhatsApp)',rr);fj.href='tel:+34'+tel;h('small','hint','Es un teléfono fijo: no se puede enviar por WhatsApp. Cópialo para email/llamada o busca su móvil.',det)}
+  if(movil){tel='34'+tel;var wa=h('a','mini','Abrir en WhatsApp',rr);wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value);wa.target='_blank';wa.rel='noopener';wa.addEventListener('click',function(){wa.href='https://wa.me/'+tel+'?text='+encodeURIComponent(ta.value)})}else if(send)h('small','hint','Sin teléfono guardado: cópialo y envíalo por otro canal.',rr)
   h('small','hint','Revisa tú la señal en su web antes de enviar. Lo envías tú, desde tu móvil: la oficina no manda nada.',det);
  }
  if(send){
