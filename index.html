@@ -19,6 +19,8 @@
       <a href="#oficina" data-view="oficina">Oficina</a>
       <a href="#equipo" data-view="equipo">Equipo</a>
       <a href="#tablon" data-view="tablon">Tablón</a>
+      <a href="#decisiones" data-view="decisiones">Decisiones <span class="dn" id="dec-n" hidden></span></a>
+      <a href="#radar" data-view="radar">Radar</a>
       <a href="#demos" data-view="demos">Sala de demos</a>
       <a href="#ventas" data-view="ventas">Ventas · Scout</a>
       <a href="#herramientas" data-view="herramientas">Herramientas</a>
@@ -73,6 +75,26 @@
     <section id="tablon" class="view" hidden>
       <div class="board" id="board"></div>
       <p class="hint">Las tareas de ventas y marketing terminan en «Para tu revisión»: nada sale sin que tú lo apruebes.</p>
+    </section>
+
+    <!-- DECISIONES -->
+    <section id="decisiones" class="view" hidden>
+      <p class="lead">Los agentes consultan con Luna. Lo que cae dentro de las reglas lo resuelve ella; lo que sale de la oficina, cuesta dinero o compromete a WhiteMoon te llega aquí para que decidas tú.</p>
+      <h2 class="sub">Pendientes de ti</h2>
+      <div id="dec-pend" class="dec-list"></div>
+      <h2 class="sub">Ya decididas</h2>
+      <div id="dec-done" class="dec-list"></div>
+    </section>
+
+    <!-- RADAR -->
+    <section id="radar" class="view" hidden>
+      <p class="lead">El Radar de prospectos de WhiteMoon, leído en directo de Supabase. Los agentes de ventas trabajan solo con prospectos <b>analizados</b>, de mayor a menor oportunidad, y cada primer contacto pasa por Luna y por ti.</p>
+      <div class="panel wide" id="r-off"><p class="hint" style="margin:0">Inicia sesión en <a href="#ventas">Ventas · Scout</a> para ver el Radar. Sin sesión no se muestra ningún prospecto.</p></div>
+      <div id="r-app" hidden>
+        <div class="kpis" id="r-kpis"></div>
+        <div class="row" style="margin-bottom:14px"><button class="btn ghost" id="r-reload" type="button">Actualizar</button><span class="hint" id="r-msg" role="status"></span></div>
+        <div class="queue" id="r-list"></div>
+      </div>
     </section>
 
     <!-- SALA DE DEMOS -->
@@ -190,5 +212,7 @@
 <script src="sales.js"></script>
 <script src="demos.js"></script>
 <script src="db.js"></script>
+<script src="decisions.js"></script>
+<script src="radar.js"></script>
 </body>
 </html>

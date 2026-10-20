@@ -89,11 +89,11 @@ var AGENTS=[
 var BY={};AGENTS.forEach(function(a){BY[a.id]=a});
 
 /* ---------- ESTADO ---------- */
-var state={speed:1,done:0,approved:0,tasks:[],feed:[],nextId:1,tick:0,sel:'luna'};
+var state={consultas:0,speed:1,done:0,approved:0,tasks:[],feed:[],nextId:1,tick:0,sel:'luna'};
 AGENTS.forEach(function(a){a.st='idle';a.t=0;a.q=[];a.task=null;a.away=0;a.hist=[];a.t0=1;a.at=''});
 
 /* ---------- NAV ---------- */
-var TITLES={oficina:'Oficina',equipo:'Equipo',demos:'Sala de demos',ventas:'Ventas · Scout',tablon:'Tablón de tareas',herramientas:'Herramientas'};
+var TITLES={oficina:'Oficina',equipo:'Equipo',decisiones:'Decisiones',radar:'Radar de prospectos',demos:'Sala de demos',ventas:'Ventas · Scout',tablon:'Tablón de tareas',herramientas:'Herramientas'};
 function route(){
  var v=(location.hash||'#oficina').slice(1);if(!TITLES[v])v='oficina';
  document.querySelectorAll('.view').forEach(function(s){s.hidden=s.id!==v});
@@ -340,9 +340,51 @@ function kpis(){
  var k=$('kpis');k.textContent='';
  var cur=state.tasks.filter(function(t){return t.col==='curso'}).length;
  var rev=state.tasks.filter(function(t){return t.col==='revision'}).length;
- [['Agentes en oficina',AGENTS.length],['Tareas en curso',cur],['Para tu revisión',rev],['Tareas simuladas hechas',state.done]].forEach(function(x){
+ [['Agentes en oficina',AGENTS.length],['Tareas en curso',cur],['Para tu revisión',rev],['Consultas a Dirección',state.consultas],['Esperan tu decisión',window.WM_DEC_N||0],['Tareas simuladas hechas',state.done]].forEach(function(x){
   var d=h('div','kpi',null,k);h('span','',String(x[1]),d);h('small','',x[0],d);
  });
+}
+
+/* ---------- ROLES Y AUTORIDAD ---------- */
+/* solo = lo hace sin preguntar · luna = lo consulta con Dirección · cris = lo decides tú */
+var AUTH={
+ luna:{solo:['Priorizar y repartir tareas','Resolver dudas de los agentes dentro de las reglas'],luna:[],cris:['Cualquier cosa que salga de la oficina','Gasto, precios, clientes y cambios en producción']},
+ sol:{solo:['Elegir prospecto del Radar y demo del sector','Redactar borradores de primer contacto'],luna:['Qué producto ofrecer si no está claro','Sector sin demo'],cris:['Enviar cualquier mensaje a un prospecto','Crear una demo nueva']},
+ vega:{solo:['Ideas, títulos y guiones en borrador'],luna:['Encaje en el calendario de contenidos'],cris:['Publicar en redes o en el canal']},
+ atlas:{solo:['Revisar metas, datos estructurados y ficheros para IA'],luna:['Prioridad entre varias mejoras SEO'],cris:['Cambiar texto o código de una web pública']},
+ eco:{solo:['Atender consultas y recoger nombre y teléfono'],luna:['Lead dudoso o incompleto'],cris:['Prometer algo fuera del catálogo']},
+ alba:{solo:['Seguir el procedimiento de alta y marcar lo que falta'],luna:['Falta un dato del cliente'],cris:['Activar el token de un cliente']},
+ abaco:{solo:['Ordenar y resumir movimientos'],luna:['Movimiento sin categoría clara'],cris:['Todo lo fiscal: pasa a tu gestor']},
+ egida:{solo:['Revisión defensiva de sistemas propios'],luna:['Hallazgo menor'],cris:['Cambiar políticas de acceso o claves']}
+};
+/* Temas de ejemplo para las consultas simuladas: r = quién resuelve */
+var CONSULTAS={
+ sol:[['¿Spark o Core Spark Web para este prospecto?','luna'],['Prospecto de un sector sin demo: ¿se crea una?','cris']],
+ vega:[['¿Entra este guion en la semana?','luna'],['Hay un post listo para publicar','cris']],
+ atlas:[['¿Metas primero o datos estructurados?','luna'],['Cambiar un título de una página pública','cris']],
+ eco:[['Lead sin teléfono: ¿se reclama?','luna'],['Un cliente pide algo fuera de catálogo','cris']],
+ alba:[['Falta el horario de un cliente nuevo','luna'],['El chatbot de prueba está listo: ¿se activa?','cris']],
+ abaco:[['Movimiento sin categoría clara','luna'],['Pregunta fiscal de un movimiento','cris']],
+ egida:[['Cabecera menor sin configurar','luna'],['Propuesta de cambiar una política de acceso','cris']]
+};
+function consulta(){
+ var cand=AGENTS.filter(function(a){return a.id!=='luna'&&a.st==='idle'&&!a.away});
+ if(!cand.length||BY.luna.away)return;
+ var a=cand[Math.floor(Math.random()*cand.length)],c=CONSULTAS[a.id];if(!c)return;
+ var q=c[Math.floor(Math.random()*c.length)];
+ var p=[BY.luna.x+74,BY.luna.y+40];
+ a.away=4;a.at='Dirección';place(a,p[0],p[1]);bubble(a,'Consulta a Luna');
+ log(a,'consulta a Luna: '+q[0].charAt(0).toLowerCase()+q[0].slice(1));
+ state.consultas++;
+ setTimeout(function(){
+  if(q[1]==='luna'){bubble(BY.luna,'Resuelto: adelante');log(BY.luna,'resuelve a '+a.name+' dentro de las reglas','ok')}
+  else{
+   bubble(BY.luna,'Esto lo decide Cris');log(BY.luna,'te pasa a ti la duda de '+a.name+' (ejemplo)','rev');
+   pulse([BY.luna.x,BY.luna.y+30],[880,100],'#f5c842');
+   document.dispatchEvent(new CustomEvent('wm-sim-decision',{detail:{agente:a.id,asunto:q[0],contexto:'Consulta simulada de '+a.name+' ('+a.role+'). Es un ejemplo de cómo llegaría una decisión real.',resumen:'No entra en lo que '+a.name+' puede decidir solo y tampoco en mi margen: saca a WhiteMoon de la oficina o la compromete.',rec:'Decide con tu criterio; ejemplo sin efecto real.',opciones:['Aprobar','Rechazar','Pedir más información']}}));
+  }
+  setTimeout(function(){bubble(BY.luna,'')},3500);
+ },1800);
 }
 
 /* ---------- MOTOR ---------- */
@@ -392,6 +434,7 @@ function step(){
   if(Math.random()<0.28)start(a,null,false);
  });
  if(state.tick%9===0)meeting();
+ if(state.tick%11===5)consulta();
  renderAgent();
 }
 function loop(){
@@ -440,6 +483,7 @@ document.addEventListener('wm-db-open',function(ev){
  BY.luna&&AGENTS.forEach(function(a){a.q.forEach(function(d){if(d[3])seen[d[3]]=1})});
  (ev.detail||[]).forEach(function(r){
   if(seen[r.id]||!BY[r.agente])return;
+  if(r.datos&&r.datos.prospecto_id)return;
   if(r.estado==='revision'){state.tasks.push({id:state.nextId++,agent:r.agente,title:r.titulo,done:r.resultado||r.titulo,review:true,col:'revision',dbId:r.id})}
   else BY[r.agente].q.push([r.titulo,'Completada',r.requiere_revision,r.id]);
  });
@@ -492,6 +536,13 @@ function openFicha(id){
  function blk2(p,title,arr){var s=h('div','fb',null,p);h('h3','',title,s);var u=h('ul','',null,s);arr.forEach(function(t){h('li','',t,u)})}
  blk2(l,'Entradas',a.inputs);blk2(r,'Salidas',a.outputs);
  blk('Herramientas',a.tools);
+ var au=AUTH[a.id];
+ if(au){
+  var ab=h('div','fb auth',null,fc);h('h3','',"Quién decide qué",ab);
+  [['Lo hace solo',au.solo,'solo'],['Lo consulta con Luna',au.luna,'luna'],['Lo decide Cris',au.cris,'cris']].forEach(function(g){
+   if(!g[1].length)return;var r=h('div','au '+g[2],null,ab);h('b','',g[0],r);var u=h('ul','',null,r);g[1].forEach(function(t){h('li','',t,u)});
+  });
+ }
  var st=h('div','fb real',null,fc);h('h3','',"Estado real hoy",st);
  var u=h('ul','',null,st);a.real.forEach(function(t){h('li','',t,u)});
  var nx=h('div','fb next',null,fc);h('h3','',"Para hacerlo real",nx);h('p','',a.next,nx);
@@ -542,6 +593,8 @@ function swapAvatars(){
 }
 fetch('avatars.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():{}}).then(function(j){AV=j||{};swapAvatars()}).catch(function(){});
 
+window.WMO={AGENTS:AGENTS,BY:BY,log:log,pulse:pulse,kpis:kpis,
+ queue:function(id,def){var a=BY[id];if(a)a.q.push(def)}};
 buildMap();buildTeam();drawBoard();kpis();select('luna');
 loop();
 log(BY.luna,'abre la oficina. Todo lo que ves son tareas de ejemplo.');
