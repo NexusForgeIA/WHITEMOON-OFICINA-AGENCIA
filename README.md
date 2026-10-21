@@ -32,3 +32,5 @@ Los correos preparados por Sol terminan en «Un saludo,» sin firma. La firma no
 - **Cobertura:** tabla `oficina_cobertura` (RLS solo staff, única por sector+ciudad, guarda también las búsquedas sin resultados) más lo que ya hay en `prospectos_radar`.
 - Migración: `agente` de `oficina_tareas` y `oficina_decisiones` admite `nova`, `aura`, `lira`, `rigel`.
 - Nada se envía: los borradores siguen pasando por Decisiones y los envías tú.
+- **Piloto automático:** casilla en el panel de cobertura. Mientras la oficina esté abierta con sesión de staff, cada 3 min un agente (por turnos) hace una búsqueda y se analizan 2 webs pendientes, hasta un tope diario de búsquedas (por defecto 20; guardado en este navegador). Si una búsqueda falla se pausa solo. Los resultados del día salen en el mismo panel y las posibles ventas llegan a Decisiones. Es cliente: con la pestaña cerrada no corre; una versión en servidor (pg_cron + Edge Function) queda como paso siguiente.
+- El triaje del Radar ya no se detiene si un prospecto falla: lo anota con su nombre y sigue (3 fallos seguidos lo paran).

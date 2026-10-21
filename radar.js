@@ -14,7 +14,7 @@ var CITA=/peluquer|barber|estetic|uñas|unas|dental|dentist|fisio|podolog|taller
 function esMovil(t){var x=String(t||'').replace(/\D/g,'');if(x.length===11&&x.indexOf('34')===0)x=x.slice(2);return /^[67]\d{8}$/.test(x)}
 function agentOf(p){return window.WM_SALES?window.WM_SALES.agentFor(p):'sol'}
 function nameOf(id){var W=window.WMO;return W&&W.BY[id]?W.BY[id].name:'Sol'}
-function nm(p){return String(p.nombre||'').replace(/\s+(S\.?L\.?U?\.?|S\.?A\.?|S\.?C\.?)\s*$/i,'').trim().slice(0,70)}
+function nm(p){var t=String(p.nombre||'').replace(/\s+(S\.?L\.?U?\.?|S\.?A\.?|S\.?C\.?)\s*$/i,'').trim();var a=Array.from(t);return a.length>70?a.slice(0,70).join(''):t}
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
 function demoFor(p){
  var s=norm(p.sector),D=window.WM_DEMOS||[];
@@ -126,10 +126,15 @@ function startTriage(){
  if(tri||!ready()||!window.WMO||!window.WMO.isReal()||!window.WM_DEMOS||!window.WM_DEMOS.length)return;
  var cola=list.filter(function(p){return !p._done}).slice(0,TRIAGE_MAX);
  if(!cola.length)return;
- tri=true;var i=0;
+ tri=true;var i=0,fallos=0;
  (function next(){
   if(i>=cola.length||!ready()){tri=false;draw();return}
-  evaluar(cola[i++]).then(function(){if(i%5===0)draw();next()}).catch(function(e){tri=false;msg('Error al evaluar: '+(e.message||e))});
+  var pr=cola[i++];evaluar(pr).then(function(){fallos=0;if(i%5===0)draw();next()}).catch(function(e){
+   /* un prospecto problemático no frena a los demás: se anota con su nombre y se sigue (3 fallos seguidos = parar) */
+   fallos++;pr._done=true;console.warn('triaje:',nm(pr),e&&e.message||e);msg('No pude evaluar «'+nm(pr)+'»: '+(e&&e.message||e));
+   if(fallos>=3){tri=false;draw();return}
+   next();
+  });
  })();
 }
 /* Leads que llegan por los chatbots: la venta más caliente, directos a Cris */
