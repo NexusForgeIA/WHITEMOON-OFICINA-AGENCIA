@@ -22,8 +22,8 @@ var AGENTS=[
  real:['Reparto por palabras clave en esta maqueta'],
  next:'Edge Function de director con Claude Haiku que devuelva el plan en JSON, y tabla de tareas con RLS solo para usuarios autenticados.',
  work:[['Asignando tareas del día','Reparto listo',false],['Revisando la cola de aprobaciones','Cola revisada',false],['Preparando el resumen de la jornada','Resumen preparado',false]]},
-{id:'sol',name:'Sol',role:'Agente de ventas',c:'#00d4aa',g:'S',x:150,y:330,
- mission:'Prepara correos de prospección con la demo del sector que corresponde y los deja en cola para que los envíes tú.',
+{id:'sol',name:'Sol',role:'Ventas: belleza',c:'#00d4aa',g:'S',x:150,y:330,sales:true,
+ mission:'Prospecta peluquerías, barberías, centros de estética y uñas en las ciudades de España, prepara el primer contacto con la demo del sector y lo deja en cola para que lo envíes tú.',
  does:['Elige producto según el sector y si el negocio ya tiene web','Redacta el borrador con la demo adecuada','Incluye siempre una forma clara de darse de baja','Ordena la cola de contactos pendientes'],
  doesnt:['No envía correos por su cuenta','No promete resultados ni usa cifras inventadas','No menciona precios ni productos retirados'],
  inputs:['Leads (previsto: tabla leads_web)','Demos por sector'],outputs:['Borradores de correo','Cola de seguimiento'],
@@ -31,6 +31,54 @@ var AGENTS=[
  real:['Generador de borradores por plantilla: funciona en la pestaña Herramientas'],
  next:'Leer leads_web con RLS, redactar con Haiku y guardar el borrador; el envío queda siempre en manos de una persona.',
  work:[['Redactando borrador para una peluquería','Borrador listo para tu aprobación',true],['Eligiendo la demo para un taller','Demo elegida',false],['Ordenando contactos pendientes','Contactos ordenados',false],['Redactando borrador para un restaurante','Borrador listo para tu aprobación',true]]},
+{id:'nova',name:'Nova',role:'Ventas: salud',c:'#34d399',g:'N',x:150,y:330,sales:true,
+ mission:'Prospecta clínicas dentales, fisioterapia, podología y veterinarias en las ciudades de España y prepara el primer contacto con la demo de su sector para que lo envíes tú.',
+ does:['Busca clínicas dentales, fisioterapia, podología y veterinarias en las ciudades de España que le tocan','Elige producto según el sector y si el negocio ya tiene web','Redacta el borrador con la demo adecuada','Incluye siempre una forma clara de darse de baja'],
+ doesnt:['No envía correos ni mensajes por su cuenta','No promete resultados ni usa cifras inventadas','No menciona precios ni productos retirados','No prospecta sectores de sus compañeros de ventas'],
+ inputs:['Radar de prospectos (Supabase)','Demos por sector'],outputs:['Borradores de contacto','Búsquedas nuevas por ciudad'],
+ tools:['Google Places (vía radar-places)','Supabase prospectos_radar y oficina_cobertura'],
+ real:['Con sesión de staff: cada pulsación de «Prospectar» busca su siguiente ciudad, guarda los negocios en el Radar y deja el resto a la cola de Decisiones'],
+ next:'Prospección programada por ciudad (sin que nadie pulse) cuando se decida un tope de búsquedas al mes.',
+ work:[
+  ['Buscando clínicas dentales en una ciudad nueva','Búsqueda terminada',false],
+  ['Redactando borrador para una clínica de fisioterapia','Borrador listo para tu aprobación',true],
+  ['Eligiendo la demo para una veterinaria','Demo elegida',false]]},
+{id:'aura',name:'Aura',role:'Ventas: motor',c:'#5eead4',g:'A',x:150,y:330,sales:true,
+ mission:'Prospecta talleres de coches, mudanzas y autoescuelas en las ciudades de España y prepara el primer contacto con la demo de su sector para que lo envíes tú.',
+ does:['Busca talleres de coches, mudanzas y autoescuelas en las ciudades de España que le tocan','Elige producto según el sector y si el negocio ya tiene web','Redacta el borrador con la demo adecuada','Incluye siempre una forma clara de darse de baja'],
+ doesnt:['No envía correos ni mensajes por su cuenta','No promete resultados ni usa cifras inventadas','No menciona precios ni productos retirados','No prospecta sectores de sus compañeros de ventas'],
+ inputs:['Radar de prospectos (Supabase)','Demos por sector'],outputs:['Borradores de contacto','Búsquedas nuevas por ciudad'],
+ tools:['Google Places (vía radar-places)','Supabase prospectos_radar y oficina_cobertura'],
+ real:['Con sesión de staff: cada pulsación de «Prospectar» busca su siguiente ciudad, guarda los negocios en el Radar y deja el resto a la cola de Decisiones'],
+ next:'Prospección programada por ciudad (sin que nadie pulse) cuando se decida un tope de búsquedas al mes.',
+ work:[
+  ['Buscando talleres en una ciudad nueva','Búsqueda terminada',false],
+  ['Redactando borrador para un taller','Borrador listo para tu aprobación',true],
+  ['Ordenando contactos de mudanzas','Contactos ordenados',false]]},
+{id:'lira',name:'Lira',role:'Ventas: hogar y obras',c:'#22c1c3',g:'L',x:150,y:330,sales:true,
+ mission:'Prospecta electricistas, fontaneros, reformas y cerrajeros en las ciudades de España y prepara el primer contacto con la demo de su sector para que lo envíes tú.',
+ does:['Busca electricistas, fontaneros, reformas y cerrajeros en las ciudades de España que le tocan','Elige producto según el sector y si el negocio ya tiene web','Redacta el borrador con la demo adecuada','Incluye siempre una forma clara de darse de baja'],
+ doesnt:['No envía correos ni mensajes por su cuenta','No promete resultados ni usa cifras inventadas','No menciona precios ni productos retirados','No prospecta sectores de sus compañeros de ventas'],
+ inputs:['Radar de prospectos (Supabase)','Demos por sector'],outputs:['Borradores de contacto','Búsquedas nuevas por ciudad'],
+ tools:['Google Places (vía radar-places)','Supabase prospectos_radar y oficina_cobertura'],
+ real:['Con sesión de staff: cada pulsación de «Prospectar» busca su siguiente ciudad, guarda los negocios en el Radar y deja el resto a la cola de Decisiones'],
+ next:'Prospección programada por ciudad (sin que nadie pulse) cuando se decida un tope de búsquedas al mes.',
+ work:[
+  ['Buscando electricistas en una ciudad nueva','Búsqueda terminada',false],
+  ['Redactando borrador para una empresa de reformas','Borrador listo para tu aprobación',true],
+  ['Eligiendo la demo para un fontanero','Demo elegida',false]]},
+{id:'rigel',name:'Rigel',role:'Ventas: servicios',c:'#7ee0a8',g:'R',x:150,y:330,sales:true,
+ mission:'Prospecta despachos de abogados, gestorías, inmobiliarias y restaurantes en las ciudades de España y prepara el primer contacto con la demo de su sector para que lo envíes tú.',
+ does:['Busca abogados, gestorías, inmobiliarias y restaurantes en las ciudades de España que le tocan','Elige producto según el sector y si el negocio ya tiene web','Redacta el borrador con la demo adecuada','Incluye siempre una forma clara de darse de baja'],
+ doesnt:['No envía correos ni mensajes por su cuenta','No promete resultados ni usa cifras inventadas','No menciona precios ni productos retirados','No prospecta sectores de sus compañeros de ventas'],
+ inputs:['Radar de prospectos (Supabase)','Demos por sector'],outputs:['Borradores de contacto','Búsquedas nuevas por ciudad'],
+ tools:['Google Places (vía radar-places)','Supabase prospectos_radar y oficina_cobertura'],
+ real:['Con sesión de staff: cada pulsación de «Prospectar» busca su siguiente ciudad, guarda los negocios en el Radar y deja el resto a la cola de Decisiones'],
+ next:'Prospección programada por ciudad (sin que nadie pulse) cuando se decida un tope de búsquedas al mes.',
+ work:[
+  ['Buscando abogados en una ciudad nueva','Búsqueda terminada',false],
+  ['Redactando borrador para una gestoría','Borrador listo para tu aprobación',true],
+  ['Eligiendo la demo para un restaurante','Demo elegida',false]]},
 {id:'vega',name:'Vega',role:'Marketing y contenido',c:'#9d70ff',g:'V',x:390,y:330,
  mission:'Convierte las demos en contenido: ideas, títulos con palabra clave y guiones para el canal y las redes.',
  does:['Propone ideas y títulos pensando en lo que busca el dueño del negocio','Escribe el esqueleto del guion con aviso de IA','Revisa subtítulos y descripciones'],
@@ -120,7 +168,11 @@ var LOOKS={
  eco:{skin:'#f6d8bd',hair:'#4a2d1d',eye:'#2d6fb3',style:'ponytail',x:['headset','polo','brows','lash']},
  alba:{skin:'#e8b690',hair:'#e0a93f',eye:'#8a5a2b',style:'bob',x:['buttons','brows','lash']},
  abaco:{skin:'#f3cdb0',hair:'#c9c9d6',eye:'#4a5a7a',style:'bald',x:['glasses','tie','brows']},
- egida:{skin:'#c98d66',hair:'#101015',eye:'#111',style:'hood',x:['shades','shield']}
+ egida:{skin:'#c98d66',hair:'#101015',eye:'#111',style:'hood',x:['shades','shield']},
+ nova:{skin:'#f0c4a0',hair:'#6b3a1d',eye:'#2a5a8a',style:'short',x:['tie','brows']},
+ aura:{skin:'#b9805a',hair:'#1d1d2a',eye:'#3a2414',style:'ponytail',x:['pocket','brows','lash']},
+ lira:{skin:'#f1cfb2',hair:'#8a4a1c',eye:'#4a6b3a',style:'curly',x:['glassesSq','tie','brows']},
+ rigel:{skin:'#e3b08a',hair:'#8c8c96',eye:'#2d4f7a',style:'short',x:['glasses','tie','brows']}
 };
 function shade(hex,k){var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;function f(v){return Math.max(0,Math.min(255,Math.round(v*k)))}return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
 function lite(hex,k){var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;function f(v){return Math.max(0,Math.min(255,Math.round(v+(255-v)*k)))}return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
@@ -214,10 +266,10 @@ function portrait(cls,a,sz){
  var g=el('g',{},s);buildChar(a,g,false);d.appendChild(s);return d;
 }
 
-var LAYOUT={luna:[500,118,'Dirección'],sol:[185,290,'Ventas'],vega:[735,290,'Marketing y SEO'],atlas:[905,290,'Marketing y SEO'],eco:[100,515,'Clientes'],alba:[270,515,'Clientes'],abaco:[735,515,'Finanzas'],egida:[905,515,'Seguridad']};
+var LAYOUT={luna:[500,118,'Dirección'],sol:[77,290,'Ventas'],nova:[187,290,'Ventas'],aura:[297,290,'Ventas'],lira:[132,500,'Ventas'],rigel:[242,500,'Ventas'],vega:[735,290,'Marketing y SEO'],atlas:[905,290,'Marketing y SEO'],eco:[100,685,'Clientes'],alba:[270,685,'Clientes'],abaco:[735,515,'Finanzas'],egida:[905,515,'Seguridad']};
 AGENTS.forEach(function(a){var l=LAYOUT[a.id];a.x=l[0];a.y=l[1];a.dept=l[2]});
-var PLACES={demos:[500,312,'Sala de demos'],datos:[120,176,'Sala de datos'],aprob:[880,172,'Aprobaciones'],meet:[500,495,'Sala de reuniones']};
-var AGENT_LOC={sol:'demos',vega:'datos',atlas:'datos',eco:'datos',alba:'datos',abaco:'datos',egida:'datos'};
+var PLACES={demos:[500,312,'Sala de demos'],datos:[120,176,'Sala de datos'],aprob:[880,172,'Aprobaciones'],meet:[500,595,'Sala de reuniones']};
+var AGENT_LOC={sol:'demos',nova:'demos',aura:'demos',lira:'demos',rigel:'demos',vega:'datos',atlas:'datos',eco:'datos',alba:'datos',abaco:'datos',egida:'datos'};
 function spot(key){
  var p=PLACES[key];
  if(key==='meet'){var ang=Math.random()*6.283;return [p[0]+Math.cos(ang)*72,p[1]+Math.sin(ang)*60]}
@@ -229,9 +281,9 @@ function buildMap(){
  var gl=el('filter',{id:'glow',x:'-50%',y:'-50%',width:'200%',height:'200%'},defs);
  el('feGaussianBlur',{stdDeviation:'6',result:'b'},gl);
  var mg=el('feMerge',{},gl);el('feMergeNode',{in:'b'},mg);el('feMergeNode',{in:'SourceGraphic'},mg);
- el('rect',{x:10,y:10,width:980,height:630,rx:18,class:'floor'},svg);
- for(var i=1;i<10;i++){el('line',{x1:10+i*98,y1:10,x2:10+i*98,y2:640,class:'grid'},svg)}
- for(var j=1;j<7;j++){el('line',{x1:10,y1:10+j*90,x2:990,y2:10+j*90,class:'grid'},svg)}
+ el('rect',{x:10,y:10,width:980,height:810,rx:18,class:'floor'},svg);
+ for(var i=1;i<10;i++){el('line',{x1:10+i*98,y1:10,x2:10+i*98,y2:820,class:'grid'},svg)}
+ for(var j=1;j<9;j++){el('line',{x1:10,y1:10+j*90,x2:990,y2:10+j*90,class:'grid'},svg)}
  function room(x,y,w,hh,label,cls,color){
   var g=el('g',{class:'room '+(cls||''),style:'--c:'+(color||'#7c4dff')},svg);
   el('rect',{x:x,y:y,width:w,height:hh,rx:14,class:'rbox'},g);
@@ -250,17 +302,17 @@ function buildMap(){
  el('circle',{r:22,class:'me'},me);el('text',{y:6,'text-anchor':'middle',class:'glyph'},me,'TÚ');
  el('text',{x:880,y:128,'text-anchor':'middle',class:'sm'},ag,'Cris');
  // departamentos
- room(20,200,335,220,'VENTAS','','#00d4aa');
+ room(20,200,335,400,'VENTAS','','#00d4aa');
  room(655,200,325,220,'MARKETING Y SEO','','#9d70ff');
- room(20,440,335,200,'CLIENTES','','#ff7ab6');
- room(655,440,160,200,'FINANZAS','','#8be9fd');
- room(825,440,155,200,'SEGURIDAD','','#ff6b6b');
+ room(20,610,335,200,'CLIENTES','','#ff7ab6');
+ room(655,440,160,370,'FINANZAS','','#8be9fd');
+ room(825,440,155,370,'SEGURIDAD','','#ff6b6b');
  // sala de demos
  var dm=room(375,200,250,160,'SALA DE DEMOS','','#4da3ff');
  for(var k=0;k<5;k++){el('rect',{x:392+k*44,y:232,width:34,height:44,rx:4,class:'shelf'},dm);el('rect',{x:398+k*44,y:240,width:22,height:4,rx:2,class:'shelf2'},dm)}
  // sala de reuniones
- var rm=room(375,380,250,260,'SALA DE REUNIONES','','#7c4dff');
- el('ellipse',{cx:500,cy:505,rx:62,ry:44,class:'table'},rm);
+ var rm=room(375,380,250,430,'SALA DE REUNIONES','','#7c4dff');
+ el('ellipse',{cx:500,cy:605,rx:62,ry:44,class:'table'},rm);
  AGENTS.forEach(function(a){
   var d=el('g',{class:'desk','data-id':a.id},svg);gDesk[a.id]=d;
   el('rect',{x:a.x-52,y:a.y+22,width:104,height:42,rx:8,class:'dk'},d);
@@ -351,6 +403,10 @@ function kpis(){
 var AUTH={
  luna:{solo:['Priorizar y repartir tareas','Resolver dudas de los agentes dentro de las reglas'],luna:[],cris:['Cualquier cosa que salga de la oficina','Gasto, precios, clientes y cambios en producción']},
  sol:{solo:['Elegir prospecto del Radar y demo del sector','Redactar borradores de primer contacto'],luna:['Qué producto ofrecer si no está claro','Sector sin demo'],cris:['Enviar cualquier mensaje a un prospecto','Crear una demo nueva']},
+ nova:{solo:['Buscar su grupo de sectores en las ciudades que le tocan','Elegir prospecto del Radar y demo del sector','Redactar borradores de primer contacto'],luna:['Qué producto ofrecer si no está claro','Sector sin demo'],cris:['Enviar cualquier mensaje a un prospecto','Crear una demo nueva']},
+ aura:{solo:['Buscar su grupo de sectores en las ciudades que le tocan','Elegir prospecto del Radar y demo del sector','Redactar borradores de primer contacto'],luna:['Qué producto ofrecer si no está claro','Sector sin demo'],cris:['Enviar cualquier mensaje a un prospecto','Crear una demo nueva']},
+ lira:{solo:['Buscar su grupo de sectores en las ciudades que le tocan','Elegir prospecto del Radar y demo del sector','Redactar borradores de primer contacto'],luna:['Qué producto ofrecer si no está claro','Sector sin demo'],cris:['Enviar cualquier mensaje a un prospecto','Crear una demo nueva']},
+ rigel:{solo:['Buscar su grupo de sectores en las ciudades que le tocan','Elegir prospecto del Radar y demo del sector','Redactar borradores de primer contacto'],luna:['Qué producto ofrecer si no está claro','Sector sin demo'],cris:['Enviar cualquier mensaje a un prospecto','Crear una demo nueva']},
  vega:{solo:['Ideas, títulos y guiones en borrador'],luna:['Encaje en el calendario de contenidos'],cris:['Publicar en redes o en el canal']},
  atlas:{solo:['Revisar metas, datos estructurados y ficheros para IA'],luna:['Prioridad entre varias mejoras SEO'],cris:['Cambiar texto o código de una web pública']},
  eco:{solo:['Atender consultas y recoger nombre y teléfono'],luna:['Lead dudoso o incompleto'],cris:['Prometer algo fuera del catálogo']},
@@ -361,6 +417,10 @@ var AUTH={
 /* Temas de ejemplo para las consultas simuladas: r = quién resuelve */
 var CONSULTAS={
  sol:[['¿Spark o Core Spark Web para este prospecto?','luna'],['Prospecto de un sector sin demo: ¿se crea una?','cris']],
+ nova:[['¿Spark o Agente IA Citas para esta clínica?','luna'],['Sector de salud sin demo: ¿se crea una?','cris']],
+ aura:[['¿Spark o Core Spark Web para este taller?','luna'],['Autoescuelas: ¿se crea una demo?','cris']],
+ lira:[['Empresa sin web: ¿Core Spark Web o Web?','luna'],['Cerrajeros: ¿se crea una demo?','cris']],
+ rigel:[['¿Spark o Core Spark Web para este despacho?','luna'],['Inmobiliarias sin demo: ¿se crea una?','cris']],
  vega:[['¿Entra este guion en la semana?','luna'],['Hay un post listo para publicar','cris']],
  atlas:[['¿Metas primero o datos estructurados?','luna'],['Cambiar un título de una página pública','cris']],
  eco:[['Lead sin teléfono: ¿se reclama?','luna'],['Un cliente pide algo fuera de catálogo','cris']],
@@ -482,12 +542,12 @@ document.addEventListener('wm-db-ready',function(){
 });
 document.addEventListener('wm-db-off',function(){if(state.real){setMode(false);log(null,'Sesión cerrada: vuelve la simulación.')}});
 
-var REAL_HINT={luna:'Hace el informe de la jornada y planifica tus briefs con IA.',sol:'Evalúa prospectos del Radar y leads entrantes. Solo te pasa lo que parece una venta.',abaco:'Ordena la cartera de clientes. Sin datos contables conectados: no calcula importes.',vega:'Prepara ideas de vídeo a partir de las demos.',atlas:'Audita las páginas de whitemoon.es una a una.',eco:'Vigila los leads de los chatbots.',alba:'Revisa las altas de clientes en curso.',egida:'Comprueba las cabeceras de seguridad públicas.'};
+var REAL_HINT={luna:'Hace el informe de la jornada y planifica tus briefs con IA.',sol:'Evalúa prospectos del Radar de belleza y bienestar y los leads entrantes. Solo te pasa lo que parece una venta.',nova:'Evalúa prospectos del Radar de salud. Solo te pasa lo que parece una venta.',aura:'Evalúa prospectos del Radar de motor y transporte. Solo te pasa lo que parece una venta.',lira:'Evalúa prospectos del Radar de hogar y obras. Solo te pasa lo que parece una venta.',rigel:'Evalúa prospectos del Radar de servicios y hostelería. Solo te pasa lo que parece una venta.',abaco:'Ordena la cartera de clientes. Sin datos contables conectados: no calcula importes.',vega:'Prepara ideas de vídeo a partir de las demos.',atlas:'Audita las páginas de whitemoon.es una a una.',eco:'Vigila los leads de los chatbots.',alba:'Revisa las altas de clientes en curso.',egida:'Comprueba las cabeceras de seguridad públicas.'};
 /* ---------- MOTOR ---------- */
 function start(a,task,fromDirector){
  var def=task||a.work[Math.floor(Math.random()*a.work.length)];
  var D=window.WM_DEMOS||[];
- if(!task&&a.id==='sol'&&D.length&&Math.random()<0.6){
+ if(!task&&a.sales&&D.length&&Math.random()<0.6){
   var dm=D[Math.floor(Math.random()*D.length)];
   def=['Eligiendo la demo de '+dm.label+' para un prospecto','Demo «'+dm.label+'» elegida para un borrador',true];
  }
@@ -542,7 +602,11 @@ function loop(){
 
 /* ---------- BRIEF ---------- */
 var ROUTES=[
- ['sol',/venta|correo|mail|cliente nuevo|prospect|demo|peluquer|restaurante|taller|cl[ií]nica|reforma/i,['Redactando borrador para el brief','Borrador listo para tu aprobación',true]],
+ ['nova',/cl[ií]nica|dental|dentist|fisio|podolog|veterin/i,['Preparando prospección de salud para el brief','Borrador listo para tu aprobación',true]],
+ ['aura',/taller|mudanz|autoescuela|coche|veh[ií]culo/i,['Preparando prospección de motor para el brief','Borrador listo para tu aprobación',true]],
+ ['lira',/electric|fontaner|reforma|cerraj|obras?\b/i,['Preparando prospección de hogar para el brief','Borrador listo para tu aprobación',true]],
+ ['rigel',/abogad|gestor[ií]a|inmobiliari|restaurante|asesor/i,['Preparando prospección de servicios para el brief','Borrador listo para tu aprobación',true]],
+ ['sol',/venta|correo|mail|cliente nuevo|prospect|demo|peluquer|barber|est[ée]tica|u[ñn]as/i,['Redactando borrador para el brief','Borrador listo para tu aprobación',true]],
  ['vega',/v[ií]deo|reel|youtube|canal|redes|guion|contenido|marketing|instagram/i,['Esbozando contenido para el brief','Contenido listo para tu revisión',true]],
  ['atlas',/seo|google|web|meta|posici|geo|llms/i,['Revisando SEO para el brief','Revisión SEO terminada',false]],
  ['eco',/chat|atenci|consulta|lead|whatsapp|telegram/i,['Preparando respuestas para el brief','Respuestas preparadas',false]],
@@ -627,7 +691,7 @@ function renderAgent(){
  if(a.hist.length){var u2=h('ul','ap-list',null,p);a.hist.slice(0,5).forEach(function(x){var li=h('li','',null,u2);h('time','',x.time+' ',li);h('span','',x.text+(x.review?' · pasó a tu revisión':''),li)})}else h('p','hint','Todavía nada: espera unos segundos.',p);
  var r=h('div','row',null,p);
  var f=h('button','btn','Ficha completa',r);f.type='button';f.addEventListener('click',function(){openFicha(a.id)});
- if(a.id==='sol'){var d=h('a','btn ghost','Ver demos',r);d.href='#demos'}
+ if(a.sales){var d=h('a','btn ghost','Ver demos',r);d.href='#demos'}
 }
 
 /* ---------- FICHAS ---------- */
@@ -659,12 +723,12 @@ function openFicha(id){
  var st=h('div','fb real',null,fc);h('h3','',"Estado real hoy",st);
  var u=h('ul','',null,st);a.real.forEach(function(t){h('li','',t,u)});
  var nx=h('div','fb next',null,fc);h('h3','',"Para hacerlo real",nx);h('p','',a.next,nx);
- if(a.id==='sol'||a.id==='vega'||a.id==='egida'){
-  var go=h('a','btn','Abrir su herramienta',fc);go.href=(a.id==='sol'?'#ventas':'#herramientas');
+ if(a.sales||a.id==='vega'||a.id==='egida'){
+  var go=h('a','btn','Abrir su herramienta',fc);go.href=(a.sales?'#ventas':'#herramientas');
   go.addEventListener('click',function(){
    d.close();
-   var map={sol:'t-ventas',vega:'t-marketing',egida:'t-ciber'};
-   var b=document.querySelector('#tools-nav button[data-tool="'+map[a.id]+'"]');if(b)b.click();
+   var map={vega:'t-marketing',egida:'t-ciber'};
+   var b=document.querySelector('#tools-nav button[data-tool="'+(a.sales?'t-ventas':map[a.id])+'"]');if(b)b.click();
   });
  }
  if(!d.open)d.showModal();

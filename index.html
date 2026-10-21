@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202610201645">
+<link rel="stylesheet" href="styles.css?v=202610211200">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <meta property="og:image" content="https://nexusforgeia.github.io/WHITEMOON-OFICINA-AGENCIA/assets/og.jpg">
 </head>
@@ -49,7 +49,7 @@
       <div class="kpis" id="kpis"></div>
       <div class="office-grid">
         <div class="map-card">
-          <svg id="map" viewBox="0 0 1000 650" role="img" aria-label="Plano de la oficina con los agentes de IA trabajando"></svg>
+          <svg id="map" viewBox="0 0 1000 830" role="img" aria-label="Plano de la oficina con los agentes de IA trabajando"></svg>
           <p class="legend"><span><i class="d work"></i>trabajando</span><span><i class="d idle"></i>libre</span><span><i class="d human"></i>tú (aprobaciones)</span><span class="hintr">Pulsa un agente para ver qué hace ahora</span></p>
         </div>
         <div class="side-col">
@@ -71,7 +71,7 @@
 
     <!-- EQUIPO -->
     <section id="equipo" class="view" hidden>
-      <p class="lead">Una agencia completa: una directora que coordina y siete especialistas. Cada ficha dice qué hace, qué no hace y qué parte es real hoy.</p>
+      <p class="lead">Una agencia completa: una directora que coordina y once especialistas (cinco de ventas). Cada ficha dice qué hace, qué no hace y qué parte es real hoy.</p>
       <div id="team" class="team"></div>
     </section>
 
@@ -114,6 +114,7 @@
       <div class="panel wide" id="r-off"><p class="hint" style="margin:0">Inicia sesión en <a href="#ventas">Ventas · Scout</a> para ver el Radar. Sin sesión no se muestra ningún prospecto.</p></div>
       <div id="r-app" hidden>
         <div class="kpis" id="r-kpis"></div>
+        <div id="r-cov"></div>
         <div class="row" style="margin-bottom:14px"><button class="btn ghost" id="r-reload" type="button">Actualizar</button><span class="hint" id="r-msg" role="status"></span></div>
         <div class="queue" id="r-list"></div>
       </div>
@@ -229,13 +230,14 @@
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="tools.js?v=202610201645"></script>
-<script src="office.js?v=202610201645"></script>
-<script src="sales.js?v=202610201645"></script>
-<script src="demos.js?v=202610201645"></script>
-<script src="db.js?v=202610201645"></script>
-<script src="decisions.js?v=202610201645"></script>
-<script src="radar.js?v=202610201645"></script>
-<script src="todo.js?v=202610201645"></script>
+<script src="tools.js?v=202610211200"></script>
+<script src="office.js?v=202610211200"></script>
+<script src="sales.js?v=202610211200"></script>
+<script src="demos.js?v=202610211200"></script>
+<script src="db.js?v=202610211200"></script>
+<script src="decisions.js?v=202610211200"></script>
+<script src="cobertura.js?v=202610211200"></script>
+<script src="radar.js?v=202610211200"></script>
+<script src="todo.js?v=202610211200"></script>
 </body>
 </html>

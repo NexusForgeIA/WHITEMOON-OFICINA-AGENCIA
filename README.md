@@ -1,6 +1,6 @@
 # WHITEMOON · Oficina de agentes
 
-Panel público (GitHub Pages) con la agencia de IA de WhiteMoon: directora de oficina (Luna) y siete especialistas. HTML/CSS/JS vanilla, sin build.
+Panel público (GitHub Pages) con la agencia de IA de WhiteMoon: directora de oficina (Luna) y once especialistas (cinco de ventas, cada una con su grupo de sectores). HTML/CSS/JS vanilla, sin build.
 
 - **Oficina / Equipo / Tablón:** simulación con tareas de ejemplo (rotulada como tal). Cada ficha indica qué es real hoy.
 - **Ventas · Scout:** lee `leads_web` de Supabase con login real (Supabase Auth, RLS `authenticated`). Sin sesión no hay datos. La sesión vive en `sessionStorage`. Scout CRM completo sigue en su repo.
@@ -24,3 +24,11 @@ No hay claves secretas en el cliente (solo la publishable de Supabase).
 
 ## Envío de correos
 Los correos preparados por Sol terminan en «Un saludo,» sin firma. La firma no se pone sola: al abrir cada correo hay que pulsarla en el menú Firmas del correo. Regla de Cris: nunca se envía un correo sin su firma; si no se puede añadir, no se envía.
+
+## Equipo de ventas (5 agentes) y cobertura de España
+- **Cinco agentes, cinco grupos de sectores sin solapes** (`cobertura.js`): Sol (belleza y bienestar), Nova (salud), Aura (motor y transporte), Lira (hogar y obras) y Rigel (servicios y hostelería). Todos prospectan las mismas ciudades (77, lista editable en `CIUDADES`).
+- **Radar:** cada prospecto va al agente de su sector (`WM_SALES.agentFor`); sector desconocido, a Sol. Los leads entrantes de los chatbots siguen siendo de Sol.
+- **Prospectar:** en el Radar, cada agente tiene su botón «Prospectar» = una búsqueda (sector × ciudad, hasta 20 negocios) con `radar-places` + `radar-worker` (`encolar`). Cuesta una consulta de Google Places por pulsación, por eso no hay modo automático. «Analizar webs pendientes» lanza `procesar` (2 por pulsación).
+- **Cobertura:** tabla `oficina_cobertura` (RLS solo staff, única por sector+ciudad, guarda también las búsquedas sin resultados) más lo que ya hay en `prospectos_radar`.
+- Migración: `agente` de `oficina_tareas` y `oficina_decisiones` admite `nova`, `aura`, `lira`, `rigel`.
+- Nada se envía: los borradores siguen pasando por Decisiones y los envías tú.
