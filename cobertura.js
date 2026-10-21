@@ -36,7 +36,11 @@ function agentFor(p){
 window.WM_SALES={GRUPOS:GRUPOS,ORDEN:ORDEN,CIUDADES:CIUDADES,agentFor:agentFor};
 
 /* ---------- COBERTURA ---------- */
-var cov={},last={},pend=0,busy=false,openId=null;
+var cov={},last={},pend=0,busy=false,openId=null,hoy=[],rr=0,autoErr=false;
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var auto=lsGet('wm.auto','0')==='1',cap=Math.max(1,Math.min(200,parseInt(lsGet('wm.cap','20'),10)||20));
+function inicioHoy(){var d=new Date();d.setHours(0,0,0,0);return d.toISOString()}
 function ck(sector,ciudad){return skey(sector)+'|'+ckey(ciudad)}
 function covered(sector,ciudad){return !!cov[ck(sector,ciudad)]}
 function nextFor(id){
@@ -78,7 +82,9 @@ function load(){
   last={};
   rows.forEach(function(r){cov[ck(r.sector,r.ciudad)]=1;if(!last[r.agente])last[r.agente]=r});
   pend=x[2].count||0;
-  draw();
+  return sb().from('oficina_cobertura').select('agente,sector,ciudad,encontrados,nuevos,sin_web,duplicados,created_at').gte('created_at',inicioHoy()).order('created_at',{ascending:false}).limit(500).then(function(h){
+   hoy=h.data||[];draw();
+  });
  }).catch(function(e){var m=$('r-msg');if(m)m.textContent='No se pudo leer la cobertura: '+(e.message||e)});
 }
 
@@ -148,6 +154,20 @@ function analizar(){
   msg(d&&d.procesados?('Analizados '+d.procesados+'.'):'No había pendientes.');
  }).catch(function(e){msg('Error al analizar: '+(e.message||e))}).then(function(){busy=false;return tras()});
 }
+/* Piloto automático: mientras la oficina esté abierta con sesión de staff, cada 3 min un agente (por turnos) hace una búsqueda
+   y se analizan webs pendientes. Tope diario de búsquedas configurable. Si algo falla se pausa solo, para no gastar en bucle. */
+function tick(){
+ if(!auto||busy||autoErr||!ready()||!window.WMO||!window.WMO.isReal())return;
+ if(hoy.length>=cap){msg('Piloto automático: tope de hoy alcanzado ('+hoy.length+'/'+cap+').');return}
+ var id=null;
+ for(var k=0;k<ORDEN.length;k++){var c=ORDEN[(rr+k)%ORDEN.length];if(nextFor(c)){id=c;rr=(rr+k+1)%ORDEN.length;break}}
+ busy=true;draw();
+ var p=id?prospectar(id):Promise.resolve(null);
+ p.then(function(){return pend>0?llamar('radar-worker',{action:'procesar',max:2}).catch(function(e){console.warn('procesar:',e.message||e)}):null})
+  .catch(function(e){autoErr=true;auto=false;lsSet('wm.auto','0');msg('Piloto automático pausado por un error: '+(e.message||e))})
+  .then(function(){busy=false;return tras()});
+}
+setInterval(tick,3*60e3);
 function msg(t){var m=$('r-msg');if(m)m.textContent=t||''}
 
 /* ---------- PANEL ---------- */
@@ -184,6 +204,23 @@ function draw(){
    });
   }
  });
+ var au=h('div','row cov-auto',null,pan);au.style.marginTop='14px';
+ var lab=h('label','',null,au);var cb=h('input','',null,lab);cb.type='checkbox';cb.checked=auto;
+ h('span','',' Piloto automático (una búsqueda cada 3 min, un agente por turno, mientras esta pestaña esté abierta)',lab);
+ cb.addEventListener('change',function(){auto=cb.checked;autoErr=false;lsSet('wm.auto',auto?'1':'0');if(auto)setTimeout(tick,500);draw()});
+ var l2=h('label','',' Tope diario ',au);var ci=h('input','',null,l2);ci.type='number';ci.min=1;ci.max=200;ci.value=cap;ci.style.width='64px';
+ ci.addEventListener('change',function(){cap=Math.max(1,Math.min(200,parseInt(ci.value,10)||20));lsSet('wm.cap',String(cap));draw()});
+ h('span','hint',' búsquedas/día · hoy van '+hoy.length,au);
+ if(hoy.length){
+  var rs=h('div','cov-res',null,pan);h('h4','',"Resultados de hoy",rs);
+  ORDEN.forEach(function(id){
+   var m=hoy.filter(function(r){return r.agente===id});if(!m.length)return;
+   var nu=0,sw=0,du=0;m.forEach(function(r){nu+=r.nuevos;sw+=r.sin_web;du+=r.duplicados});
+   var a=W&&W.BY[id];
+   h('p','',(a?a.name:id)+': '+m.length+' búsquedas · '+nu+' negocios nuevos ('+sw+' sin web) · '+du+' ya conocidos. Última: '+m[0].sector+' en '+m[0].ciudad+'.',rs);
+  });
+  h('small','',"Los que tienen web se analizan y los evalúan los agentes: lo que parezca una venta llega a Decisiones.",rs);
+ }
  var act=h('div','row',null,pan);act.style.marginTop='14px';
  var all=h('button','btn','Una búsqueda por agente (los 5)',act);all.type='button';all.disabled=busy;all.addEventListener('click',todos);
  var an=h('button','btn ghost','Analizar webs pendientes ('+pend+')',act);an.type='button';an.disabled=busy||!pend;an.addEventListener('click',analizar);
