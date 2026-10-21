@@ -12,8 +12,15 @@ DB.saveBrief=function(texto,items){
   return s.from('oficina_tareas').insert(rows).select('id,agente');
  }).then(function(r){if(r.error)throw r.error;return r.data});
 };
-DB.createTarea=function(row){return sb().from('oficina_tareas').insert(row).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
-DB.createDecision=function(row){return sb().from('oficina_decisiones').insert(row).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
+/* Nombres de Google con emojis cortados por un slice dejan medio carácter suelto (surrogate solitario) y PostgREST responde «Empty or invalid json». Se limpia todo texto antes de insertar. */
+function limpia(v){
+ if(typeof v==='string')return v.replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/g,function(m){return m.length>1?m.charAt(0):''});
+ if(Array.isArray(v))return v.map(limpia);
+ if(v&&typeof v==='object'){var o={};Object.keys(v).forEach(function(k){o[k]=limpia(v[k])});return o}
+ return v;
+}
+DB.createTarea=function(row){row=limpia(row);return sb().from('oficina_tareas').insert(row).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
+DB.createDecision=function(row){row=limpia(row);return sb().from('oficina_decisiones').insert(row).select('id').single().then(function(r){if(r.error)throw r.error;return r.data.id})};
 DB.loadDecisiones=function(){return sb().from('oficina_decisiones').select('*, tarea:oficina_tareas(id,datos,resultado)').order('created_at',{ascending:false}).limit(60).then(function(r){if(r.error)throw r.error;return r.data||[]})};
 DB.decide=function(id,decision,nota){return sb().from('oficina_decisiones').update({estado:'decidida',decision:decision,nota:nota||null,decidido_at:new Date().toISOString()}).eq('id',id).then(function(r){if(r.error)throw r.error})};
 DB.worked=function(){return sb().from('oficina_tareas').select('datos,estado').not('datos','is',null).in('estado',['revision','hecha','descartada']).then(function(r){if(r.error)throw r.error;return r.data||[]})};
