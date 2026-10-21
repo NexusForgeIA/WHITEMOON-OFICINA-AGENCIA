@@ -2,7 +2,7 @@
 (function(){
 function $(i){return document.getElementById(i)}
 function h(t,c,x,p){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;if(p)p.appendChild(n);return n}
-var rows=[],flt='todos',NAMES={luna:'Luna',sol:'Sol',vega:'Vega',atlas:'Atlas',eco:'Eco',alba:'Alba',abaco:'Ábaco',egida:'Égida'};
+var rows=[],flt='todos',NAMES={luna:'Luna',sol:'Sol',vega:'Vega',atlas:'Atlas',eco:'Eco',alba:'Alba',abaco:'Ábaco',egida:'Égida',nova:'Nova',aura:'Aura',lira:'Lira',rigel:'Rigel'};
 function ready(){return window.WM_DB&&window.WM_DB.ready}
 function hora(s){return new Date(s).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
 function draw(){

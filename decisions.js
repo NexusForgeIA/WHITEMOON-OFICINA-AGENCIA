@@ -4,7 +4,7 @@
 function $(i){return document.getElementById(i)}
 function h(t,c,x,p){var n=document.createElement(t);if(c)n.className=c;if(x!=null)n.textContent=x;if(p)p.appendChild(n);return n}
 var rows=[],sims=[],simId=0;
-var NAMES={luna:'Luna',sol:'Sol',vega:'Vega',atlas:'Atlas',eco:'Eco',alba:'Alba',abaco:'Ábaco',egida:'Égida'};
+var NAMES={luna:'Luna',sol:'Sol',vega:'Vega',atlas:'Atlas',eco:'Eco',alba:'Alba',abaco:'Ábaco',egida:'Égida',nova:'Nova',aura:'Aura',lira:'Lira',rigel:'Rigel'};
 
 function pendientes(){return rows.filter(function(r){return r.estado==='pendiente'}).concat(sims.filter(function(r){return r.estado==='pendiente'}))}
 function badge(){

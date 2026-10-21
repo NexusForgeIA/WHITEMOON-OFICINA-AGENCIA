@@ -1,4 +1,4 @@
-/* Radar de prospectos para Sol. Lee prospectos_radar (solo staff) y, con tu visto bueno, prepara el primer contacto.
+/* Radar de prospectos para el equipo de ventas (Sol, Nova, Aura, Lira y Rigel; cada una con su grupo de sectores, ver cobertura.js). Lee prospectos_radar (solo staff) y, con tu visto bueno, prepara el primer contacto.
    Nunca envía nada: cada borrador pasa por Luna y llega a Decisiones para que lo apruebes tú. */
 (function(){
 function $(i){return document.getElementById(i)}
@@ -12,6 +12,8 @@ function msg(t){var m=$('r-msg');if(m)m.textContent=t||''}
 var DEMO_BY=[[/electric|reform|fontaner/,'WHITEMOON-REFORMAS-ELECTRICIDAD'],[/peluquer/,'WHITEMOON-PELUQUERIAS'],[/barber/,'WHITEMOON-BARBERIAS'],[/estetic|uñas|unas|belleza/,'WHITEMOON-ESTETICA'],[/dental|dentist/,'WHITEMOON-CLINICAS-DENTALES'],[/fisio/,'WHITEMOON-FISIO'],[/podolog/,'WHITEMOON-PODOLOGOS'],[/veterin/,'WHITEMOON-VETERINARIOS'],[/taller|mecanic|automovil|recambio/,'WHITEMOON-TALLERES-COCHES'],[/mudanz|transporte/,'WHITEMOON-MUDANZAS'],[/abogad/,'WHITEMOON-ABOGADOS'],[/inmobil/,'WHITEMOON-INMOBILIARIAS'],[/restaur/,'WHITEMOON-RESTAURANTE-DEMO']];
 var CITA=/peluquer|barber|estetic|uñas|unas|dental|dentist|fisio|podolog|taller|clinic|veterin/;
 function esMovil(t){var x=String(t||'').replace(/\D/g,'');if(x.length===11&&x.indexOf('34')===0)x=x.slice(2);return /^[67]\d{8}$/.test(x)}
+function agentOf(p){return window.WM_SALES?window.WM_SALES.agentFor(p):'sol'}
+function nameOf(id){var W=window.WMO;return W&&W.BY[id]?W.BY[id].name:'Sol'}
 function nm(p){return String(p.nombre||'').replace(/\s+(S\.?L\.?U?\.?|S\.?A\.?|S\.?C\.?)\s*$/i,'').trim().slice(0,70)}
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
 function demoFor(p){
@@ -65,17 +67,18 @@ function prepare(p,ems){
  var datos={prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:tel||null,dolor:p.dolor,producto:pr.n,demo:dm?dm.url:null,triage:'posible_venta'};
  if(ems.length){datos.emails=ems;datos.email_asunto=ed.asunto;datos.email_cuerpo=ed.cuerpo}
  if(p.web)datos.fc=1;
- return window.WM_DB.createTarea({agente:'sol',titulo:'Primer contacto: '+nm(p),resultado:d,estado:'revision',requiere_revision:true,datos:datos}).then(function(tid){
-  return window.WM_DB.createDecision({tarea_id:tid,agente:'sol',asunto:'¿Enviar primer contacto a '+nm(p)+'?',
+ var ag=agentOf(p);
+ return window.WM_DB.createTarea({agente:ag,titulo:'Primer contacto: '+nm(p),resultado:d,estado:'revision',requiere_revision:true,datos:datos}).then(function(tid){
+  return window.WM_DB.createDecision({tarea_id:tid,agente:ag,asunto:'¿Enviar primer contacto a '+nm(p)+'?',
    contexto:(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor||0)+'/100 · '+pr.n+' ('+pr.why+')'+(dm?' · demo: '+dm.label:' · sin demo de su sector'),
-   resumen_luna:'Sol lo ha evaluado y cree que es una posible venta: oportunidad alta, canal de contacto (móvil y/o correo de su web) y demo de su sector. Las señales del Radar son automáticas y sin verificar a mano. El borrador no lleva precios ni cifras de rendimiento y tiene salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
+   resumen_luna:nameOf(ag)+' lo ha evaluado y cree que es una posible venta: oportunidad alta, canal de contacto (móvil y/o correo de su web) y demo de su sector. Las señales del Radar son automáticas y sin verificar a mano. El borrador no lleva precios ni cifras de rendimiento y tiene salida clara. Enviarlo sale de la oficina, así que lo decides tú.',
    recomendacion:r[0]+'. '+r[1],opciones:['Aprobar para enviar','Descartar prospecto','Posponer']});
  });
 }
 function viaSol(p){
  var W=window.WMO,n=nm(p);
  if(!W||!W.isReal())return prepare(p);
- return W.work('sol','Preparando el primer contacto para '+n,function(){return prepare(p).then(function(){if(window.WM_DEC)window.WM_DEC.reload();W.log(W.BY.luna,'recibe de Sol el borrador de '+n+' y lo manda a Decisiones','rev');return{titulo:'Borrador de '+n+' entregado a Luna',resultado:'Pendiente de tu decisión en Decisiones.',persist:false}})},{accion:'radar'});
+ return W.work(agentOf(p),'Preparando el primer contacto para '+n,function(){return prepare(p).then(function(){if(window.WM_DEC)window.WM_DEC.reload();W.log(W.BY.luna,'recibe de '+nameOf(agentOf(p))+' el borrador de '+n+' y lo manda a Decisiones','rev');return{titulo:'Borrador de '+n+' entregado a Luna',resultado:'Pendiente de tu decisión en Decisiones.',persist:false}})},{accion:'radar'});
 }
 function load(){
  if(!ready())return Promise.resolve();
@@ -108,14 +111,14 @@ function motivoBase(p,dm){
 /* Sol evalúa un prospecto: revisa su web (Firecrawl) para encontrar correo; si hay canal, prepara borrador y se lo pasa a Cris; si no, lo descarta con motivo */
 function evaluar(p){
  var W=window.WMO,n=nm(p),dm=demoFor(p),m=motivoBase(p,dm);
- return W.work('sol',(p.web&&!m?'Revisando la web de ':'Evaluando a ')+n,function(){
-  function descarta(mm){return window.WM_DB.createTarea({agente:'sol',titulo:'Descartado por Sol: '+n,resultado:'Motivo: '+mm+'.',estado:'descartada',requiere_revision:false,datos:{prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:p.telefono||null,dolor:p.dolor,triage:'descartado',motivo:mm,fc:p.web&&!m?1:undefined}}).then(function(){return{titulo:'Descartado: '+n+' ('+mm+')',resultado:'',persist:false}})}
+ return W.work(agentOf(p),(p.web&&!m?'Revisando la web de ':'Evaluando a ')+n,function(){
+  function descarta(mm){return window.WM_DB.createTarea({agente:agentOf(p),titulo:'Descartado por '+nameOf(agentOf(p))+': '+n,resultado:'Motivo: '+mm+'.',estado:'descartada',requiere_revision:false,datos:{prospecto_id:p.id,nombre:p.nombre,sector:p.sector,zona:p.zona,telefono:p.telefono||null,dolor:p.dolor,triage:'descartado',motivo:mm,fc:p.web&&!m?1:undefined}}).then(function(){return{titulo:'Descartado: '+n+' ('+mm+')',resultado:'',persist:false}})}
   if(m)return delay(2500).then(function(){return descarta(m)});
   var ep=p.web?window.WM_DB.correos(p.web).then(function(x){return x.emails||[]}).catch(function(e){console.warn('correos:',e.message||e);return []}):Promise.resolve([]);
   return Promise.all([ep,delay(3200)]).then(function(x){
    var ems=x[0];
    if(!esMovil(p.telefono)&&!ems.length)return descarta(p.telefono?'teléfono fijo y no encontré correo en su web':'sin móvil y no encontré correo en su web');
-   return prepare(p,ems).then(function(){if(window.WM_DEC)window.WM_DEC.reload();W.log(W.BY.luna,'recibe de Sol una posible venta: '+n+(ems.length?' (con correo)':''),'rev');return{titulo:'Posible venta: '+n+(ems.length?' · '+ems[0].email:''),resultado:'Pendiente de tu decisión.',persist:false}});
+   return prepare(p,ems).then(function(){if(window.WM_DEC)window.WM_DEC.reload();W.log(W.BY.luna,'recibe de '+nameOf(agentOf(p))+' una posible venta: '+n+(ems.length?' (con correo)':''),'rev');return{titulo:'Posible venta: '+n+(ems.length?' · '+ems[0].email:''),resultado:'Pendiente de tu decisión.',persist:false}});
   });
  },{accion:'triaje'}).then(function(){p._done=true});
 }
@@ -157,7 +160,7 @@ function draw(){
  var on=!!ready();off.hidden=on;app.hidden=!on;if(!on)return;
  var k=$('r-kpis');k.textContent='';
  var tel=list.filter(function(p){return esMovil(p.telefono)}).length,hechos=list.filter(function(p){return p._done}).length;
- [[list.length,'Prospectos cargados (analizados + sin web con móvil)'],[tel,'Con móvil (WhatsApp)'],[hechos,'Ya trabajados por Sol'],[window.WM_DEC?window.WM_DEC.pendingReal():0,'Esperan tu decisión']].forEach(function(x){var d=h('div','kpi',null,k);h('span','',String(x[0]),d);h('small','',x[1],d)});
+ [[list.length,'Prospectos cargados (analizados + sin web con móvil)'],[tel,'Con móvil (WhatsApp)'],[hechos,'Ya trabajados por ventas'],[window.WM_DEC?window.WM_DEC.pendingReal():0,'Esperan tu decisión']].forEach(function(x){var d=h('div','kpi',null,k);h('span','',String(x[0]),d);h('small','',x[1],d)});
  var l=$('r-list');l.textContent='';
  if(!list.length)h('p','empty','No hay prospectos cargados.',l);
  list.filter(function(p){return !p._done}).slice(0,60).concat(list.filter(function(p){return p._done}).slice(0,10)).forEach(function(p){
@@ -166,13 +169,14 @@ function draw(){
   var dm=demoFor(p);
   h('span','',' '+(p.sector||'')+' · '+(p.zona||'')+' · dolor '+(p.dolor==null?'—':p.dolor)+(p.telefono?(esMovil(p.telefono)?' · móvil':' · fijo (sin WhatsApp)'):' · sin teléfono')+(p._rec?' · sin web, descartado en Scout':(!p.web?' · sin web':''))+(dm?' · demo: '+dm.label:' · sin demo'),w);
   if(p._done)h('span','',' · trabajado',q);
-  else if(esMovil(p.telefono)){var b=h('button','',"Pedir a Sol",q);b.type='button';b.addEventListener('click',function(){
+  else if(esMovil(p.telefono)){var b=h('button','',"Pedir a "+nameOf(agentOf(p)),q);b.type='button';b.addEventListener('click',function(){
    if(busy)return;busy=true;b.disabled=true;
    viaSol(p).then(function(){p._done=true;busy=false;if(window.WM_DEC)window.WM_DEC.reload();draw()}).catch(function(e){busy=false;b.disabled=false;msg('Error: '+(e.message||e))});
   })}
  });
 }
 document.addEventListener('wm-db-ready',function(){setTimeout(load,800)});
+document.addEventListener('wm-cov-done',function(){setTimeout(load,500)});
 document.addEventListener('wm-auth',function(){if(!window.WM_AUTH){list=[];draw()}});
 setInterval(function(){if(ready()&&window.WMO&&window.WMO.isReal()&&!tri){load()}},10*60e3);
 setInterval(function(){leads()},4*60e3);
