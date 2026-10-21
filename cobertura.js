@@ -88,11 +88,21 @@ function unwrap(r){
  if(r.error)throw new Error(r.error.message);
  return r.data;
 }
+/* radar-places y radar-worker solo admiten la cabecera content-type (CORS): se llaman con fetch simple, no con supabase-js */
+var FN='https://mlaqtniujnvfxcvcourm.supabase.co/functions/v1/';
+function llamar(fn,body){
+ return fetch(FN+fn,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){
+  return r.json().catch(function(){return {}}).then(function(j){
+   if(!r.ok)throw new Error((j&&(j.error||(j.details&&JSON.stringify(j.details).slice(0,160))))||('HTTP '+r.status));
+   return j;
+  });
+ });
+}
 function buscar(id,t){
- return sb().functions.invoke('radar-places',{body:{sector:t.sector,zona:t.ciudad.key,max:20}}).then(unwrap).then(function(d){
+ return llamar('radar-places',{sector:t.sector,zona:t.ciudad.key,max:20}).then(function(d){
   if(!d||d.ok!==true)throw new Error((d&&d.error)||'Respuesta no válida de radar-places');
   var neg=d.negocios||[];
-  var enc=neg.length?sb().functions.invoke('radar-worker',{body:{action:'encolar',sector:t.sector,zona:t.ciudad.key,negocios:neg}}).then(unwrap):Promise.resolve({ok:true,nuevos:0,sin_web:0,duplicados:0});
+  var enc=neg.length?llamar('radar-worker',{action:'encolar',sector:t.sector,zona:t.ciudad.key,negocios:neg}):Promise.resolve({ok:true,nuevos:0,sin_web:0,duplicados:0});
   return enc.then(function(e){
    if(!e||e.ok!==true)throw new Error((e&&e.error)||'Respuesta no válida de radar-worker');
    return sb().from('oficina_cobertura').upsert({agente:id,sector:t.sector,ciudad:t.ciudad.key,encontrados:neg.length,nuevos:e.nuevos||0,sin_web:e.sin_web||0,duplicados:e.duplicados||0},{onConflict:'sector,ciudad'}).then(function(r){
@@ -134,7 +144,7 @@ function todos(){
 function analizar(){
  if(busy||!ready())return;
  busy=true;msg('Analizando las webs pendientes (puede tardar un minuto)…');draw();
- sb().functions.invoke('radar-worker',{body:{action:'procesar',max:2}}).then(unwrap).then(function(d){
+ llamar('radar-worker',{action:'procesar',max:2}).then(function(d){
   msg(d&&d.procesados?('Analizados '+d.procesados+'.'):'No había pendientes.');
  }).catch(function(e){msg('Error al analizar: '+(e.message||e))}).then(function(){busy=false;return tras()});
 }
