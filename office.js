@@ -771,6 +771,7 @@ function swapAvatars(){
 fetch('avatars.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():{}}).then(function(j){AV=j||{};swapAvatars()}).catch(function(){});
 
 window.WMO={AGENTS:AGENTS,BY:BY,log:log,pulse:pulse,kpis:kpis,work:work,isReal:function(){return state.real},
+ select:select,sel:function(){return state.sel},
  queue:function(id,def){var a=BY[id];if(a)a.q.push(def)}};
 buildMap();buildTeam();drawBoard();kpis();select('luna');
 loop();

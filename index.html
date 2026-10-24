@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202610211200">
+<link rel="stylesheet" href="styles.css?v=202610240330">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <meta property="og:image" content="https://nexusforgeia.github.io/WHITEMOON-OFICINA-AGENCIA/assets/og.jpg">
 </head>
@@ -49,8 +49,10 @@
       <div class="kpis" id="kpis"></div>
       <div class="office-grid">
         <div class="map-card">
+          <div class="view-sw" role="group" aria-label="Vista de la oficina" hidden><button type="button" data-vista="3d" aria-pressed="false">3D</button><button type="button" data-vista="plano" aria-pressed="false">Plano</button></div>
+          <div id="map3d" class="map3d" role="img" aria-label="Oficina en 3D, vista isométrica, con los agentes de IA trabajando. La vista Plano tiene los mismos agentes accesibles con teclado." hidden></div>
           <svg id="map" viewBox="0 0 1000 830" role="img" aria-label="Plano de la oficina con los agentes de IA trabajando"></svg>
-          <p class="legend"><span><i class="d work"></i>trabajando</span><span><i class="d idle"></i>libre</span><span><i class="d human"></i>tú (aprobaciones)</span><span class="hintr">Pulsa un agente para ver qué hace ahora</span></p>
+          <p class="legend"><span><i class="d work"></i>trabajando</span><span><i class="d idle"></i>libre</span><span><i class="d human"></i>tú (aprobaciones)</span><span class="hintr">Pulsa un agente para ver qué hace ahora<span class="hint3d"> · arrastra para girar · Ctrl + rueda para acercar · doble clic para recolocar</span></span></p>
         </div>
         <div class="side-col">
           <div class="panel" id="agent-panel" aria-live="polite"></div>
@@ -230,14 +232,16 @@
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="tools.js?v=202610211200"></script>
-<script src="office.js?v=202610211200"></script>
-<script src="sales.js?v=202610211200"></script>
-<script src="demos.js?v=202610211200"></script>
-<script src="db.js?v=202610211200"></script>
-<script src="decisions.js?v=202610211200"></script>
-<script src="cobertura.js?v=202610211200"></script>
-<script src="radar.js?v=202610211200"></script>
-<script src="todo.js?v=202610211200"></script>
+<script src="tools.js?v=202610240330"></script>
+<script src="office.js?v=202610240330"></script>
+<script src="sales.js?v=202610240330"></script>
+<script src="demos.js?v=202610240330"></script>
+<script src="db.js?v=202610240330"></script>
+<script src="decisions.js?v=202610240330"></script>
+<script src="cobertura.js?v=202610240330"></script>
+<script src="radar.js?v=202610240330"></script>
+<script src="todo.js?v=202610240330"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module" src="office3d.js?v=202610240330"></script>
 </body>
 </html>
