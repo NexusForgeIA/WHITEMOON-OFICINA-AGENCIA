@@ -299,3 +299,16 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .cov-res{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
 .cov-res h4{margin:0 0 6px;font-weight:600}
 .cov-res p{margin:2px 0;font-size:13px}
+
+/* oficina 3D */
+.map-card{position:relative}
+.view-sw{position:absolute;top:22px;right:22px;z-index:2;display:flex;background:rgba(14,14,22,.85);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px;backdrop-filter:blur(6px)}
+.view-sw[hidden]{display:none}
+.view-sw button{font:600 12px Sora,system-ui,sans-serif;color:var(--muted);background:none;border:0;border-radius:7px;padding:6px 12px;cursor:pointer}
+.view-sw button.on{background:var(--p);color:#fff}
+.view-sw button:focus-visible{outline:2px solid var(--p2);outline-offset:2px}
+.map3d{width:100%;aspect-ratio:16/10;border-radius:10px;overflow:hidden;cursor:grab;touch-action:pan-y;background:#08080d}
+.map3d[hidden]{display:none}
+.map3d canvas{display:block;width:100%!important;height:100%!important}
+.map3d[hidden]~.legend .hint3d{display:none}
+@media(max-width:600px){.map3d{aspect-ratio:5/4}.view-sw{top:18px;right:18px}}
