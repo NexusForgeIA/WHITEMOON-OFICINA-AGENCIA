@@ -63,6 +63,73 @@ var IC={
 function ico(n,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n]+'</svg>'}
 
 /* ---------- CSS ---------- */
+
+/* ---- capa holográfica (misma del diseño FISIO): teléfono, paneles, arcos, escáner, mapa e hilo de luz ---- */
+function holo(P){
+ var m=function(c,n){return 'color-mix(in srgb,'+c+' '+n+'%,transparent)'};
+ var p=P.p,a=P.a,pl=P.pl,al=P.al;
+ return ''+
+ '.hl{display:none}'+
+ '@media(min-width:980px){'+
+ '.hero{min-height:660px;display:flex;align-items:center}.hero .wrap{width:100%}.hero h1{font-size:clamp(40px,5.2vw,76px)}.hero .sub,.hero .lead{max-width:min(36ch,46%)}.hero h1{max-width:min(13ch,52%)}'+
+ '.hl{display:block;position:absolute;z-index:3;right:max(2vw,calc((100vw - 1180px)/2 - 8px));top:50%;width:clamp(380px,36vw,540px);height:560px;margin-top:-250px;pointer-events:none;contain:layout}'+
+ '.hl *{animation-play-state:paused}.hl.hl-on *{animation-play-state:running}'+
+ '.hl-suelo{position:absolute;left:50%;bottom:6px;width:340px;height:70px;margin-left:-170px;border-radius:50%;border:1px solid '+m(p,32)+';background:radial-gradient(ellipse at center,'+m(pl,70)+','+m(al,30)+' 55%,transparent 72%);box-shadow:0 0 38px '+m(pl,70)+'}'+
+ '.hl-suelo::after{content:"";position:absolute;inset:14px 46px;border-radius:50%;border:1px solid '+m(p,32)+';animation:hl-pulso 3.6s ease-in-out infinite}'+
+ '.hl-arco{position:absolute;left:50%;top:50%;border-radius:50%;border:1px solid '+m(p,20)+'}'+
+ '.hl-arco--a{width:500px;height:500px;margin:-250px 0 0 -250px;border-color:'+m(pl,80)+' transparent transparent '+m(al,70)+';animation:hl-gira 22s linear infinite}'+
+ '.hl-arco--b{width:410px;height:410px;margin:-205px 0 0 -205px;border-color:transparent '+m(p,28)+' '+m(pl,60)+' transparent;animation:hl-gira 30s linear infinite reverse}'+
+ '.hl-tel{position:absolute;right:6%;top:30px;width:236px;height:476px;border-radius:40px;padding:12px;background:linear-gradient(160deg,rgba(255,255,255,.92),'+m(pl,45)+' 55%,'+m(pl,55)+');border:1px solid '+m(p,34)+';box-shadow:0 0 0 6px rgba(255,255,255,.55),0 30px 70px -22px '+m(p,55)+',0 0 54px '+m(pl,60)+',inset 0 0 28px '+m(pl,35)+';animation:hl-flota 7s ease-in-out infinite;will-change:transform}'+
+ '.hl-tel::before{content:"";position:absolute;left:50%;top:18px;width:74px;height:20px;margin-left:-37px;border-radius:12px;background:'+P.ink+';opacity:.86;z-index:2}'+
+ '.hl-pant{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.95),'+m(pl,35)+');border:1px solid '+m(p,14)+';padding:52px 14px 14px;display:flex;flex-direction:column;gap:10px}'+
+ '.hl-pant::before{content:"Asistente IA";position:absolute;left:0;right:0;top:14px;padding-top:26px;text-align:center;font:700 .66rem/1 var(--display);letter-spacing:.06em;color:'+p+';text-transform:uppercase}'+
+ '.hl-pant::after{content:"";position:absolute;left:0;right:0;top:0;height:46%;background:linear-gradient(180deg,transparent,'+m(pl,50)+' 50%,transparent);transform:translateY(-100%);animation:hl-barre 5.6s ease-in-out infinite}'+
+ '.hl-m{height:34px;border-radius:14px;border:1px solid '+m(p,16)+';background:rgba(255,255,255,.88);width:78%;box-shadow:0 6px 16px -10px '+m(p,40)+'}'+
+ '.hl-m i{display:block;height:5px;border-radius:3px;background:'+m(p,34)+';margin:9px 12px 0;width:62%}.hl-m i+i{width:38%;margin-top:5px;background:'+m(p,20)+'}'+
+ '.hl-m--u{align-self:flex-end;background:linear-gradient(135deg,'+m(pl,70)+','+m(al,60)+');border-color:'+m(p,22)+'}.hl-m--u i{background:'+m(P.ink,42)+'}'+
+ '.hl-m--t{height:24px;width:34%}.hl-m--t b{display:inline-block;width:6px;height:6px;border-radius:50%;background:'+p+';margin:9px 0 0 12px;box-shadow:12px 0 0 '+m(p,55)+',24px 0 0 '+m(p,30)+';animation:hl-parp 1.6s ease-in-out infinite}'+
+ '.hl-cita{margin-top:auto;height:62px;border-radius:16px;border:1px solid '+m(p,40)+';background:linear-gradient(135deg,'+m(pl,60)+',rgba(255,255,255,.9));box-shadow:0 0 22px '+m(al,60)+';position:relative}'+
+ '.hl-cita::before{content:"";position:absolute;left:14px;top:50%;width:26px;height:26px;margin-top:-13px;border-radius:50%;background:'+a+';opacity:.9}'+
+ '.hl-cita::after{content:"Reserva";position:absolute;left:52px;top:14px;font:700 .72rem/1 var(--display);color:'+P.pd+';letter-spacing:.04em;text-transform:uppercase}'+
+ '.hl-cita i{position:absolute;left:52px;top:34px;height:5px;width:46%;border-radius:3px;background:'+m(p,30)+'}'+
+ '.hl-graf{position:absolute;z-index:2;left:0;bottom:78px;width:228px;height:196px;border-radius:18px;padding:14px;background:linear-gradient(150deg,rgba(255,255,255,.93),'+m(pl,45)+');border:1px solid '+m(p,30)+';box-shadow:0 24px 54px -22px '+m(p,55)+',0 0 42px '+m(pl,55)+',inset 0 0 22px '+m(pl,30)+';transform:rotate(-3deg);animation:hl-flota2 8s ease-in-out infinite;will-change:transform}'+
+ '.hl-graf::before{content:"Más clientes";position:absolute;left:14px;top:12px;font:700 .64rem/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:'+p+'}'+
+ '.hl-bars{position:absolute;left:14px;right:14px;top:56px;height:56px;display:flex;align-items:flex-end;gap:7px}'+
+ '.hl-bars i{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,'+al+','+pl+');border:1px solid '+m(p,20)+';border-bottom:0;transform-origin:50% 100%;transform:scaleY(.2);transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}.hl-on .hl-bars i{transform:scaleY(1)}'+
+ '.hl-bars i:nth-child(1){height:30%}.hl-bars i:nth-child(2){height:48%;transition-delay:.08s}.hl-bars i:nth-child(3){height:42%;transition-delay:.16s}.hl-bars i:nth-child(4){height:70%;transition-delay:.24s}.hl-bars i:nth-child(5){height:100%;transition-delay:.32s}'+
+ '.hl-linea{position:absolute;left:14px;right:14px;bottom:12px;height:46px}.hl-linea svg{width:100%;height:100%;overflow:visible}'+
+ '.hl-linea path{fill:none;stroke:'+a+';stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.6s .4s ease}.hl-on .hl-linea path{stroke-dashoffset:0}.hl-linea circle{fill:#fff;stroke:'+a+';stroke-width:1.6}'+
+ '.hl-mini{position:absolute;left:34px;top:34px;width:116px;height:54px;border-radius:14px;border:1px solid '+m(p,26)+';background:linear-gradient(140deg,rgba(255,255,255,.92),'+m(pl,50)+');box-shadow:0 14px 34px -16px '+m(p,50)+',0 0 26px '+m(al,55)+';animation:hl-flota2 6.4s ease-in-out infinite reverse}'+
+ '.hl-mini::before{content:"24/7";position:absolute;left:14px;top:11px;font:800 1.05rem/1 var(--display);color:'+P.pd+';letter-spacing:-.02em}'+
+ '.hl-mini::after{content:"";position:absolute;left:14px;right:14px;bottom:11px;height:5px;border-radius:3px;background:linear-gradient(90deg,'+al+','+pl+')}'+
+ '.hl-nota{position:absolute;left:0;bottom:-18px;width:240px;font:600 .62rem/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);opacity:.85}.hl-nota::before{content:"Ilustración, no datos reales"}'+
+ '}'+
+ '@keyframes hl-flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}@keyframes hl-flota2{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(-3deg) translateY(10px)}}'+
+ '@keyframes hl-gira{to{transform:rotate(360deg)}}@keyframes hl-pulso{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:1;transform:scale(1.04)}}'+
+ '@keyframes hl-barre{0%{transform:translateY(-100%)}60%,100%{transform:translateY(230%)}}@keyframes hl-parp{0%,100%{opacity:.4}50%{opacity:1}}'+
+ '@keyframes hl-hilo2{from{background-position:-40% 0}to{background-position:140% 0}}@keyframes hl-radar{0%{transform:scale(1);opacity:.9}100%{transform:scale(5.2);opacity:0}}'+
+ /* tarjetas: brillo al pasar el ratón */
+ '.card:hover{box-shadow:0 0 0 1px '+m(pl,80)+',0 22px 46px -22px '+m(p,50)+',0 0 34px '+m(pl,60)+'}'+
+ '.card-img::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);transition:transform .9s cubic-bezier(.16,1,.3,1)}.card:hover .card-img::before{transform:translateX(120%)}'+
+ /* foto de Sobre nosotros: marco HUD + barrido */
+ '.about-img{position:relative}.hl-sc{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}'+
+ '.hl-sc i{position:absolute;width:26px;height:26px;border:2px solid rgba(255,255,255,.92);filter:drop-shadow(0 0 6px '+m(pl,90)+')}'+
+ '.hl-sc i:nth-child(1){left:16px;top:16px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}.hl-sc i:nth-child(2){right:16px;top:16px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}'+
+ '.hl-sc i:nth-child(3){left:16px;bottom:16px;border-right:0;border-top:0;border-radius:0 0 0 8px}.hl-sc i:nth-child(4){right:16px;bottom:16px;border-left:0;border-top:0;border-radius:0 0 8px 0}'+
+ '.hl-sc b{position:absolute;left:0;right:0;top:0;height:34%;background:linear-gradient(180deg,transparent,transparent 20%,'+m(pl,70)+' 92%,rgba(255,255,255,.85) 100%);border-bottom:1px solid rgba(255,255,255,.9);transform:translateY(-100%);animation:hl-barre 5.2s ease-in-out infinite;animation-play-state:paused}'+
+ '.about-img.hl-on .hl-sc b{animation-play-state:running}'+
+ /* hilo de luz en el pie */
+ 'footer{position:relative}footer::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,transparent 0,'+pl+' 50%,'+al+' 58%,transparent 100%) 0 0/40% 100% no-repeat;box-shadow:0 0 14px '+m(pl,70)+';animation:hl-hilo2 7s linear infinite;animation-play-state:paused}footer.hl-on::before{animation-play-state:running}'+
+ /* mapa holográfico (ilustración) */
+ '.hl-map{position:relative;margin-top:30px;height:150px;border-radius:18px;overflow:hidden;border:1px solid '+m(p,26)+';background:radial-gradient(circle at 62% 52%,'+m(pl,55)+',transparent 60%),repeating-linear-gradient(0deg,'+m(p,12)+' 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,'+m(p,12)+' 0 1px,transparent 1px 22px),linear-gradient(160deg,#fff,'+P.pc+');box-shadow:0 20px 44px -24px '+m(p,50)+',inset 0 0 30px '+m(pl,30)+'}'+
+ '.hl-map::after{content:"Ilustración, no es un mapa real";position:absolute;left:16px;bottom:12px;font:600 .58rem/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}'+
+ '.hl-map b{position:absolute;left:16px;top:14px;font:700 .64rem/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:'+p+'}'+
+ '.hl-pin{position:absolute;left:62%;top:52%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:'+a+';box-shadow:0 0 0 4px rgba(255,255,255,.9),0 0 18px '+m(a,70)+'}'+
+ '.hl-pin::before,.hl-pin::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid '+m(a,55)+';animation:hl-radar 3s ease-out infinite;animation-play-state:paused}.hl-pin::after{animation-delay:1.5s}'+
+ '.hl-map.hl-on .hl-pin::before,.hl-map.hl-on .hl-pin::after{animation-play-state:running}'+
+ '@media(prefers-reduced-motion:reduce){.hl *,.hl-sc b,footer::before,.hl-pin::before,.hl-pin::after{animation:none!important}.hl-bars i{transform:none!important;transition:none!important}.hl-linea path{stroke-dashoffset:0!important;transition:none!important}}';
+}
+
 function css(P,base){
  var f=function(n){return base+'assets/web/'+n};
  return '@font-face{font-family:"Inter var";src:url('+f('inter-var.woff2')+') format("woff2");font-weight:400 600;font-display:swap}'+
@@ -169,6 +236,7 @@ function documento(d,opts){
  if(nota&&tot)rate='<div class="rate" title="Dato de la ficha de Google del negocio">'+ico('g')+'<span class="st" aria-hidden="true">★</span><span>'+esc(nota)+' · '+esc(tot)+' reseñas en Google</span></div>';
 
  var heroH='<section class="hero" id="top">'+(hero?'<div class="hero-bg" style="background-image:url(\''+esc(hero)+'\')"></div>':'<div class="hero-art"></div>')+
+  '<div class="hl" aria-hidden="true"><div class="hl-arco hl-arco--a"></div><div class="hl-arco hl-arco--b"></div><div class="hl-suelo"></div><div class="hl-mini"></div><div class="hl-graf"><div class="hl-bars"><i></i><i></i><i></i><i></i><i></i></div><div class="hl-linea"><svg viewBox="0 0 200 46" preserveAspectRatio="none"><path pathLength="1" d="M2 40 L45 30 L90 34 L140 14 L196 6"/><circle cx="45" cy="30" r="3"/><circle cx="90" cy="34" r="3"/><circle cx="140" cy="14" r="3"/><circle cx="196" cy="6" r="3"/></svg></div></div><div class="hl-tel"><div class="hl-pant"><div class="hl-m hl-m--u"><i></i><i></i></div><div class="hl-m"><i></i><i></i></div><div class="hl-m hl-m--t"><b></b></div><div class="hl-cita"><i></i></div></div></div><div class="hl-nota"></div></div>'+
   '<div class="wrap"><h1>'+esc(e1)+(e2?'<span>'+esc(e2)+'</span>':'')+'</h1>'+
   (d.subtitulo?'<p class="sub">'+esc(txt(d.subtitulo,140))+'</p>':'')+
   (d.descripcion?'<p class="lead">'+esc(txt(d.descripcion,400))+'</p>':'')+
@@ -184,7 +252,7 @@ function documento(d,opts){
 
  var sobreH='';
  var ps=paras(d.sobre),aimg=url(d.sobre_img);
- if(ps.length)sobreH='<section class="sec" id="nosotros"><div class="wrap about"><div class="rev"><div class="eyebrow">Sobre nosotros</div><h2>'+esc(txt(d.t_sobre,60)||'Un negocio cercano')+'</h2>'+ps.slice(0,4).map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'</div>'+(aimg?'<div class="about-img rev"><img src="'+esc(aimg)+'" alt="'+esc(nombre)+'" loading="lazy" width="800" height="640"></div>':'')+'</div></section>';
+ if(ps.length)sobreH='<section class="sec" id="nosotros"><div class="wrap about"><div class="rev"><div class="eyebrow">Sobre nosotros</div><h2>'+esc(txt(d.t_sobre,60)||'Un negocio cercano')+'</h2>'+ps.slice(0,4).map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'</div>'+(aimg?'<div class="about-img rev"><img src="'+esc(aimg)+'" alt="'+esc(nombre)+'" loading="lazy" width="800" height="640"><div class="hl-sc" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div></div>':'')+'</div></section>';
  if(ps.length&&!aimg)sobreH=sobreH.replace('class="wrap about"><div class="rev">','class="wrap"><div class="rev" style="max-width:740px">');
 
  var galH='';
@@ -217,6 +285,7 @@ function documento(d,opts){
  var demo='<div class="demo-bar">Propuesta de web para <b>'+esc(nombre)+'</b>, creada por <a href="https://whitemoon.es" target="_blank" rel="noopener">WhiteMoon Agencia IA</a>. Es una vista previa: aún no es la web oficial.</div>';
 
  var js='(function(){var b=document.getElementById("bg"),m=document.getElementById("mm");if(b&&m){b.addEventListener("click",function(){var o=m.classList.toggle("on");b.setAttribute("aria-expanded",o)});m.addEventListener("click",function(e){if(e.target.tagName==="A"){m.classList.remove("on");b.setAttribute("aria-expanded","false")}})}'+
+  'var hs=document.querySelectorAll(".hl,.about-img,.hl-map,footer");if("IntersectionObserver"in window){var ho=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("hl-on",e.isIntersecting)})},{threshold:.15});hs.forEach(function(e){ho.observe(e)})}else{hs.forEach(function(e){e.classList.add("hl-on")})}'+
   'var y=document.getElementById("yr");if(y)y.textContent=new Date().getFullYear();'+
   'document.documentElement.classList.add("js");var els=document.querySelectorAll(".rev");setTimeout(function(){els.forEach(function(e){e.classList.add("in")})},2000);if("IntersectionObserver"in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});els.forEach(function(e){io.observe(e)})}else{els.forEach(function(e){e.classList.add("in")})}'+
   'var lb=document.getElementById("lb"),li=lb&&lb.querySelector("img");document.querySelectorAll("[data-lb]").forEach(function(x){x.addEventListener("click",function(){li.src=x.getAttribute("data-lb");lb.classList.add("on")})});if(lb){lb.addEventListener("click",function(){lb.classList.remove("on")});document.addEventListener("keydown",function(e){if(e.key==="Escape")lb.classList.remove("on")})}})();';
@@ -224,7 +293,7 @@ function documento(d,opts){
  var tIt=nombre+(subtxt?' · '+subtxt:'');
  return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<title>'+esc(tIt)+'</title><meta name="robots" content="noindex,nofollow"><meta name="description" content="'+esc(txt(d.subtitulo||d.descripcion,150))+'"><meta name="theme-color" content="'+esc(P.p)+'">'+
-  '<style>'+css(P,base)+'</style></head><body>'+demo+nav+heroH+mq+servH+sobreH+galH+revH+faqH+contH+foot+fab+'<div class="lb" id="lb" role="dialog" aria-label="Foto ampliada"><img alt=""></div><script>'+js+'<\/script></body></html>';
+  '<style>'+css(P,base)+holo(P)+'</style></head><body>'+demo+nav+heroH+mq+servH+sobreH+galH+revH+faqH+contH+foot+fab+'<div class="lb" id="lb" role="dialog" aria-label="Foto ampliada"><img alt=""></div><script>'+js+'<\/script></body></html>';
 }
 
 window.WMWeb={documento:documento,paleta:paleta,esc:esc,url:url,tel:tel,contrast:contrast,hex:hex,rgb2hsl:rgb2hsl,h2r:h2r};
