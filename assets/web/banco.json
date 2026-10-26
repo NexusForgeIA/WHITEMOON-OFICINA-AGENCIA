@@ -1,0 +1,301 @@
+{
+ "peluqueria": {
+  "nombre": "Peluquería · estética · uñas",
+  "claves": "peluq|barber|estetic|estétic|uña|nail|belleza|beauty|salon|salón|masaje facial|cosmet",
+  "fotos": [
+   {
+    "id": "1633681926022-84c23e8cb2d6",
+    "u": "benyamin_bohlouli",
+    "t": "Salón moderno"
+   },
+   {
+    "id": "1706629503603-e47c37722776",
+    "u": "tilemerchant",
+    "t": "Salón con luces"
+   },
+   {
+    "id": "1706629505300-168aa1604912",
+    "u": "tilemerchant",
+    "t": "Sillas y espejos"
+   },
+   {
+    "id": "1600948836101-f9ffda59d250",
+    "u": "gregtrow",
+    "t": "Tres sillas"
+   },
+   {
+    "id": "1695527081827-fdbc4e77be9b",
+    "u": "unsplashbydan",
+    "t": "Zona de lavado"
+   },
+   {
+    "id": "1706629503650-cade709d15e3",
+    "u": "tilemerchant",
+    "t": "Peluquería luminosa"
+   },
+   {
+    "id": "1790009419857-51fa0a2d9354",
+    "u": "eusuntvibes",
+    "t": "Barbería"
+   },
+   {
+    "id": "1626379501846-0df4067b8bb9",
+    "u": "giorgiotrovato",
+    "t": "Silla y espejo"
+   },
+   {
+    "id": "1619607146034-5a05296c8f9a",
+    "u": "hngstrm",
+    "t": "Esmaltes de uñas"
+   },
+   {
+    "id": "1776651993626-7cc836bf03aa",
+    "u": "hujason",
+    "t": "Frascos"
+   },
+   {
+    "id": "1775500835259-d3b3f6d6e2f2",
+    "u": "pixelesse",
+    "t": "Manicura"
+   },
+   {
+    "id": "1596462502278-27bfdc403348",
+    "u": "shamblenstudios",
+    "t": "Pinceles de maquillaje"
+   },
+   {
+    "id": "1637777269308-6a072f24e8a4",
+    "u": "giorgiotrovato",
+    "t": "Lavacabezas"
+   }
+  ]
+ },
+ "clinica": {
+  "nombre": "Fisio · clínica · dental · podología",
+  "claves": "fisio|clinic|clínic|dental|dentist|podolog|osteo|quiropr|psicolog|medic|médic|salud|rehabil",
+  "fotos": [
+   {
+    "id": "1630226040750-d934f017f0e4",
+    "u": "nightingaledxb",
+    "t": "Sala de tratamiento"
+   },
+   {
+    "id": "1700142360825-d21edc53c8db",
+    "u": "k_sabbaghan",
+    "t": "Camilla"
+   },
+   {
+    "id": "1745327883290-1e9c6447b938",
+    "u": "jakubklucky",
+    "t": "Sala de masaje"
+   },
+   {
+    "id": "1704455306251-b4634215d98f",
+    "u": "karibjorn",
+    "t": "Consulta"
+   },
+   {
+    "id": "1608979827489-2b855e79debe",
+    "u": "dr_kanapon",
+    "t": "Consulta dental"
+   },
+   {
+    "id": "1519494026892-80bbd2d6fd0d",
+    "u": "m_dominguez_marketing",
+    "t": "Sala de espera"
+   },
+   {
+    "id": "1764727291644-5dcb0b1a0375",
+    "u": "malcolm_choong",
+    "t": "Recepción"
+   },
+   {
+    "id": "1648775507324-b48dd3791fa5",
+    "u": "rawkkim",
+    "t": "Recepción clara"
+   },
+   {
+    "id": "1630835425197-50feeba99ecd",
+    "u": "cherosi",
+    "t": "Despacho"
+   },
+   {
+    "id": "1595871151608-bc7abd1caca3",
+    "u": "atikahakhtar",
+    "t": "Sala de masajes"
+   },
+   {
+    "id": "1762625570087-6d98fca29531",
+    "u": "amyvosters",
+    "t": "Espacio de calma"
+   },
+   {
+    "id": "1611920630418-f587fdc3bf94",
+    "u": "visualsofdana",
+    "t": "Detalle de spa"
+   },
+   {
+    "id": "1589271243958-d61e12b61b97",
+    "u": "thanospal",
+    "t": "Zona blanca"
+   },
+   {
+    "id": "1540555700478-4be289fbecef",
+    "u": "kmile_ch",
+    "t": "Producto de cuidado"
+   }
+  ]
+ },
+ "taller": {
+  "nombre": "Taller · mecánica · neumáticos",
+  "claves": "taller|mecan|mecán|coche|auto|neumat|neumát|chapa|itv|moto",
+  "fotos": [
+   {
+    "id": "1767681092416-bccf9410bda4",
+    "u": "winstonchen",
+    "t": "Taller con coches"
+   },
+   {
+    "id": "1792326103553-4e4e8964279e",
+    "u": "xalo_mustafa",
+    "t": "Taller de reparación"
+   },
+   {
+    "id": "1618312980096-873bd19759a0",
+    "u": "krutota",
+    "t": "Elevador"
+   },
+   {
+    "id": "1760310936486-4dd450aab2a8",
+    "u": "cameraobscura2000",
+    "t": "Pared de herramientas"
+   },
+   {
+    "id": "1731694411560-050e5b91e943",
+    "u": "tonchik",
+    "t": "Herramientas"
+   },
+   {
+    "id": "1671040690726-b78261eff126",
+    "u": "tonchik",
+    "t": "Herramientas colgadas"
+   },
+   {
+    "id": "1637640125496-31852f042a60",
+    "u": "kronemberger",
+    "t": "Llaves inglesas"
+   },
+   {
+    "id": "1593699199342-59b40e08f0ac",
+    "u": "tekton_tools",
+    "t": "Llanta y atornillador"
+   },
+   {
+    "id": "1580053852056-f3992ab1e5e5",
+    "u": "robineero",
+    "t": "Neumáticos en estantería"
+   },
+   {
+    "id": "1571335746824-742511d49bce",
+    "u": "shadrach_warid",
+    "t": "Neumáticos"
+   },
+   {
+    "id": "1668874184010-87aa286683dd",
+    "u": "behy_studio",
+    "t": "Martillos y herramientas"
+   },
+   {
+    "id": "1503789146722-cf137a3c0fea",
+    "u": "mattartz",
+    "t": "Llave ajustable"
+   },
+   {
+    "id": "1551522435-a13afa10f103",
+    "u": "sooprun",
+    "t": "Garaje"
+   },
+   {
+    "id": "1635108198854-26645ffe6714",
+    "u": "3dottawa",
+    "t": "Garaje taller"
+   }
+  ]
+ },
+ "restaurante": {
+  "nombre": "Restaurante · bar · cafetería",
+  "claves": "restaur|bar\\b|cafe|café|cervec|taberna|pizzer|sushi|comida|cocina|panader|pasteler",
+  "fotos": [
+   {
+    "id": "1613274554329-70f997f5789f",
+    "u": "thetangledtomato",
+    "t": "Comedor luminoso"
+   },
+   {
+    "id": "1610963490387-0c08126eacf8",
+    "u": "rakabtw_",
+    "t": "Local cálido"
+   },
+   {
+    "id": "1744776411221-702f2848b0b2",
+    "u": "saronita",
+    "t": "Mesas puestas"
+   },
+   {
+    "id": "1778650451432-f08ed467e2c4",
+    "u": "kyrainteriors",
+    "t": "Interior elegante"
+   },
+   {
+    "id": "1551530241-1ccbaa7a9a84",
+    "u": "rukeba",
+    "t": "Sala del restaurante"
+   },
+   {
+    "id": "1739792598744-3512897156e3",
+    "u": "andriusbudrikas",
+    "t": "Mesas y sillas"
+   },
+   {
+    "id": "1769184618842-068a5ad1a112",
+    "u": "skyler_tv",
+    "t": "Rincón acogedor"
+   },
+   {
+    "id": "1565650839149-2c48a094196c",
+    "u": "99films",
+    "t": "Mesas de madera"
+   },
+   {
+    "id": "1716317662068-2733a6e592db",
+    "u": "jivangarcha",
+    "t": "Mesa con copas"
+   },
+   {
+    "id": "1751011983324-fe9d30fe9efd",
+    "u": "juliemllt",
+    "t": "Copas de vino"
+   },
+   {
+    "id": "1453614512568-c4024d13c247",
+    "u": "nputra",
+    "t": "Barra de café"
+   },
+   {
+    "id": "1770739538932-433941c1267e",
+    "u": "clementproust",
+    "t": "Cafetería moderna"
+   },
+   {
+    "id": "1597290282695-edc43d0e7129",
+    "u": "echaparro",
+    "t": "Barra con botellas"
+   },
+   {
+    "id": "1572116469696-31de0f17cc34",
+    "u": "quinguyen",
+    "t": "Barra del bar"
+   }
+  ]
+ }
+}

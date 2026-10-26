@@ -28,7 +28,7 @@ function uid(){return window.crypto&&crypto.randomUUID?crypto.randomUUID():rnd(1
 /* ---------- estado ---------- */
 function vacio(){return {nombre:'',sector:'',ciudad:'',direccion:'',telefono:'',whatsapp:'',email:'',horario:'',resenas_url:'',mapa:'',instagram:'',facebook:'',web_actual:'',
  logo:'',hero:'',sobre_img:'',galeria:[],color:'#2f7d7a',color2:'',eslogan1:'',eslogan2:'',subtitulo:'',descripcion:'',sobre:'',
- servicios:[{titulo:'',texto:'',img:''}],valoracion_nota:'',valoracion_total:'',resenas:[{autor:'',estrellas:5,texto:'',fecha:''}],faqs:[]}}
+ servicios:[{titulo:'',texto:'',img:''}],valoracion_nota:'',valoracion_total:'',resenas:[{autor:'',estrellas:5,texto:'',fecha:''}],faqs:[],creditos:[]}}
 function saveDraft(){try{sessionStorage.setItem(DRAFT,JSON.stringify({S:S,editId:editId,editSlug:editSlug}))}catch(e){}}
 function loadDraft(){try{var d=JSON.parse(sessionStorage.getItem(DRAFT)||'null');if(d&&d.S){S=Object.assign(vacio(),d.S);editId=d.editId||null;editSlug=d.editSlug||null;return true}}catch(e){}return false}
 
@@ -89,7 +89,7 @@ function field(key,label,opt){
  opt=opt||{};
  var inp=opt.area?h('textarea',{rows:opt.rows||3,maxlength:opt.max||600,placeholder:opt.ph||''}):h('input',{type:opt.type||'text',maxlength:opt.max||200,placeholder:opt.ph||'',autocomplete:'off'});
  inp.value=S[key]||'';
- inp.addEventListener('input',function(){S[key]=inp.value;refresh()});
+ inp.addEventListener('input',function(){S[key]=inp.value;refresh();if(key==='sector'||key==='nombre'){var bx=$('.wb-banco');if(bx)bx.dispatchEvent(new Event('wb-repaint'))}});
  var l=h('label',{class:opt.wide?'wb-wide':''},[label,inp]);
  if(opt.hint)l.appendChild(h('small',{text:opt.hint}));
  return l;
@@ -111,6 +111,66 @@ function filePick(key,label,max,opt){
  });
  var rm=h('button',{type:'button',class:'btn ghost sm',text:'Quitar',onclick:function(){S[key]='';thumb.hidden=true;st.textContent='Sin imagen';refresh()}});
  return h('div',{class:'wb-file'},[h('span',{class:'wb-lbl',text:label}),h('div',{class:'wb-frow'},[thumb,inp,st,rm]),opt.hint?h('small',{text:opt.hint}):null]);
+}
+
+/* ---------- banco de fotos por sector (Unsplash, sin personas) ---------- */
+var BANCO=null,bsel=null,bsec=null;
+function uns(id,w){return 'https://images.unsplash.com/photo-'+id+'?auto=format&fit=crop&w='+w+'&q=75'}
+function sectorAuto(){
+ if(bsec)return bsec;
+ var t=((S.sector||'')+' '+(S.nombre||'')).toLowerCase();
+ if(BANCO)for(var k in BANCO){if(new RegExp(BANCO[k].claves,'i').test(t))return k}
+ return 'peluqueria';
+}
+function credito(u){S.creditos=S.creditos||[];if(u&&S.creditos.indexOf(u)<0&&S.creditos.length<30)S.creditos.push(u)}
+function rebuild(){
+ var open=[].map.call(root.querySelectorAll('.wb-sec'),function(d){return d.open}),t=$('#wb-paste'),pv=t?t.value:'',y=window.scrollY;
+ build();
+ [].forEach.call(root.querySelectorAll('.wb-sec'),function(d,i){d.open=!!open[i]});
+ var t2=$('#wb-paste');if(t2)t2.value=pv;window.scrollTo(0,y);
+}
+function bancoFotos(){
+ var box=h('div',{class:'wb-file wb-wide wb-banco'});
+ box.appendChild(h('span',{class:'wb-lbl',text:'Banco de fotos por sector (Unsplash, sin personas)'}));
+ var body=h('div');box.appendChild(body);
+ function pinta(){
+  body.textContent='';
+  if(!BANCO){body.appendChild(h('small',{text:'Cargando banco…'}));return}
+  var k=sectorAuto(),sel=h('select',{'aria-label':'Sector del banco'},Object.keys(BANCO).map(function(x){var o=h('option',{value:x,text:BANCO[x].nombre});if(x===k)o.selected=true;return o}));
+  sel.addEventListener('change',function(){bsec=sel.value;bsel=null;pinta()});
+  var auto=h('button',{type:'button',class:'btn ghost sm',text:'Rellenar fotos automáticamente',onclick:function(){
+   var f=BANCO[k].fotos;S.creditos=[];
+   S.hero=uns(f[0].id,1800);credito(f[0].u);
+   S.sobre_img=uns(f[1].id,1200);credito(f[1].u);
+   S.galeria=f.slice(2,8).map(function(x){credito(x.u);return uns(x.id,1000)});
+   S.servicios.forEach(function(sv,i){var x=f[(8+i)%f.length];sv.img=uns(x.id,900);credito(x.u)});
+   msg('Fotos puestas. Cámbialas si quieres.','ok');refresh();rebuild();
+  }});
+  body.appendChild(h('div',{class:'wb-frow'},[sel,auto]));
+  var grid=h('div',{class:'wb-bg'});
+  BANCO[k].fotos.forEach(function(x,i){
+   var b=h('button',{type:'button',class:'wb-bi','aria-pressed':bsel===i?'true':'false','aria-label':x.t,onclick:function(){bsel=i;pinta()}},[h('img',{src:uns(x.id,240),alt:x.t,width:120,height:84,loading:'lazy'})]);
+   grid.appendChild(b);
+  });
+  body.appendChild(grid);
+  if(bsel!==null){
+   var x=BANCO[k].fotos[bsel];
+   var svs=h('select',{'aria-label':'Servicio'},S.servicios.map(function(sv,i){return h('option',{value:i,text:'Servicio '+(i+1)+(sv.titulo?': '+sv.titulo.slice(0,22):'')})}));
+   function put(fn){credito(x.u);fn();msg('Foto «'+x.t+'» puesta.','ok');refresh();rebuild()}
+   body.appendChild(h('div',{class:'wb-frow'},[
+    h('strong',{text:x.t}),
+    h('button',{type:'button',class:'btn ghost sm',text:'Portada',onclick:function(){put(function(){S.hero=uns(x.id,1800)})}}),
+    h('button',{type:'button',class:'btn ghost sm',text:'Sobre nosotros',onclick:function(){put(function(){S.sobre_img=uns(x.id,1200)})}}),
+    h('button',{type:'button',class:'btn ghost sm',text:'+ Galería',onclick:function(){if(S.galeria.length>=8){msg('La galería ya tiene 8 fotos.','err');return}put(function(){S.galeria.push(uns(x.id,1000))})}}),
+    svs,
+    h('button',{type:'button',class:'btn ghost sm',text:'En ese servicio',onclick:function(){put(function(){S.servicios[parseInt(svs.value,10)||0].img=uns(x.id,900)})}})
+   ]));
+   body.appendChild(h('small',{text:'Foto de @'+x.u+' en Unsplash (licencia libre). Son imágenes ilustrativas, no del negocio.'}));
+  }
+ }
+ box.addEventListener('wb-repaint',function(){if(!bsec)pinta()});
+ if(BANCO)pinta();else{pinta();fetch('assets/web/banco.json?v=1').then(function(r){return r.json()}).then(function(j){BANCO=j;pinta()}).catch(function(){body.textContent='No se pudo cargar el banco de fotos.'})}
+ return box;
 }
 
 /* ---------- listas repetibles ---------- */
@@ -197,7 +257,8 @@ function build(){
   h('small',{text:'Los colores se ajustan solos para que el texto se lea bien (contraste AA).'}),
   filePick('hero','Foto de portada',1920,{hint:'Mejor horizontal y con luz. Solo fotos del propio negocio o con su permiso.'}),
   filePick('sobre_img','Foto de «Sobre nosotros»',1400),
-  galeria()
+  galeria(),
+  bancoFotos()
  ]));
 
  form.appendChild(sec('3 · Textos de portada',false,[h('div',{class:'wb-grid'},[
@@ -254,7 +315,7 @@ function ordenar(ta,btn){
   btn.disabled=false;btn.textContent='Crear la web con este texto';
   var d=r.data;
   if(r.error||!d||!d.ok||!d.datos){msg('No se pudo ordenar: '+((d&&d.error)||(r.error&&r.error.message)||'error'),'err');return}
-  var n=d.datos,keep={logo:S.logo,hero:S.hero,sobre_img:S.sobre_img,galeria:S.galeria,color:S.color,color2:S.color2};
+  var n=d.datos,keep={logo:S.logo,hero:S.hero,sobre_img:S.sobre_img,galeria:S.galeria,color:S.color,color2:S.color2,creditos:S.creditos};
   var nuevo=vacio();
   Object.keys(nuevo).forEach(function(k){
    if(k in keep)return;

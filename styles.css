@@ -359,3 +359,10 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .wb-paste textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font:inherit;font-size:14px;width:100%;resize:vertical}
 .wb-paste textarea:focus-visible{outline:2px solid var(--p2);outline-offset:1px}
 .wb-paste small{color:var(--muted);font-size:11px;align-self:center}
+
+.wb-bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin-top:8px;max-height:280px;overflow:auto}
+.wb-bi{padding:0;border:2px solid transparent;border-radius:8px;overflow:hidden;background:none;cursor:pointer;line-height:0}
+.wb-bi img{width:100%;height:68px;object-fit:cover;display:block}
+.wb-bi[aria-pressed=true]{border-color:var(--p2)}
+.wb-bi:focus-visible{outline:2px solid var(--p2);outline-offset:1px}
+.wb-banco select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 8px;font:inherit;font-size:13px}
