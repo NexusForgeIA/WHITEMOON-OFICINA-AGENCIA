@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Propuesta de web · WhiteMoon Agencia IA</title>
+<meta property="og:title" content="Propuesta de web · WhiteMoon Agencia IA">
+<meta property="og:description" content="Propuesta de diseño preparada para tu negocio.">
+<meta name="theme-color" content="#08080d">
+<style>body{margin:0;background:#f7f5f0;color:#1a1a1a;font:16px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;text-align:center;padding:24px}</style>
+</head>
+<body>
+<p id="m">Cargando tu web…</p>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="webtpl.js?v=202610260100"></script>
+<script>
+(function(){
+var m=document.getElementById('m');
+var s=(new URLSearchParams(location.search).get('s')||'').toLowerCase();
+function fail(t){m.textContent=t}
+if(!/^[a-z0-9-]{8,80}$/.test(s)){fail('Enlace no válido.');return}
+var c=supabase.createClient('https://mlaqtniujnvfxcvcourm.supabase.co','sb_publishable_6no6BuOgiA_2nonTJntAuQ_DTqEgrcV',{auth:{persistSession:false,autoRefreshToken:false}});
+c.rpc('oficina_web_publica',{p_slug:s}).then(function(r){
+ if(r.error||!r.data||!r.data.datos){fail('Esta propuesta no está disponible.');return}
+ var html=WMWeb.documento(r.data.datos,{base:encodeURI(new URL('./',location.href).href)});
+ document.open();document.write(html);document.close();
+}).catch(function(){fail('No se pudo cargar. Inténtalo de nuevo.')});
+})();
+</script>
+</body>
+</html>
