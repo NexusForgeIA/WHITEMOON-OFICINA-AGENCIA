@@ -133,6 +133,7 @@ function css(P,base){
 
 /* ---------- HTML ---------- */
 function documento(d,opts){
+ var cred='';(function(){var c=(d.creditos||[]).filter(function(u){return /^[A-Za-z0-9_.-]{1,40}$/.test(u)}).slice(0,30);if(c.length)cred='<div class="fb"><span>Imágenes ilustrativas de Unsplash, no del negocio. Fotografías: '+c.map(function(u){return '<a href="https://unsplash.com/@'+u+'" target="_blank" rel="noopener">@'+u+'</a>'}).join(', ')+'.</span></div>'})();
  d=d||{};opts=opts||{};
  var base=opts.base||'';
  var nombre=txt(d.nombre,120)||'Tu negocio',sector=txt(d.sector,60),ciudad=txt(d.ciudad,60);
@@ -210,7 +211,7 @@ function documento(d,opts){
  var foot='<footer><div class="wrap"><div class="fg"><div><a class="brand" href="#top"><span class="logo">'+(logo?'<img src="'+esc(logo)+'" alt="" width="46" height="46">':esc(ini))+'</span><span><b>'+esc(nombre)+'</b>'+(subtxt?'<small>'+esc(subtxt)+'</small>':'')+'</span></a>'+(d.descripcion?'<p>'+esc(txt(d.descripcion,160))+'</p>':'')+'</div>'+
   '<div><h4>Navegación</h4><ul><li><a href="#top">Inicio</a></li>'+(serv.length?'<li><a href="#servicios">Servicios</a></li>':'')+(rev.length?'<li><a href="#opiniones">Opiniones</a></li>':'')+'<li><a href="#contacto">Contacto</a></li></ul></div>'+
   '<div><h4>Contacto</h4><ul>'+(telD?'<li>'+a('tel:+'+telD,'','+'+esc(telD))+'</li>':'')+(mailOk?'<li>'+a('mailto:'+mailOk,'',esc(mailOk))+'</li>':'')+(dir?'<li>'+esc(dir)+'</li>':'')+'</ul></div></div>'+
-  '<div class="fb"><span>© <span id="yr">2026</span> '+esc(nombre)+'</span><span>Propuesta de diseño creada por <a href="https://whitemoon.es" target="_blank" rel="noopener">WhiteMoon Agencia IA</a> · no es la web oficial del negocio</span></div></div></footer>';
+  '<div class="fb"><span>© <span id="yr">2026</span> '+esc(nombre)+'</span><span>Propuesta de diseño creada por <a href="https://whitemoon.es" target="_blank" rel="noopener">WhiteMoon Agencia IA</a> · no es la web oficial del negocio</span></div>'+cred+'</div></footer>';
 
  var fab=waD?'<a class="fab" href="'+esc(waMsg)+'" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">'+ico('wa')+'<span>WhatsApp</span></a>':'';
  var demo='<div class="demo-bar">Propuesta de web para <b>'+esc(nombre)+'</b>, creada por <a href="https://whitemoon.es" target="_blank" rel="noopener">WhiteMoon Agencia IA</a>. Es una vista previa: aún no es la web oficial.</div>';
