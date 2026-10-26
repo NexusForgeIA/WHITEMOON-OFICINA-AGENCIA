@@ -354,3 +354,8 @@ code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:13px}
 .wb-lb{display:flex;flex-wrap:wrap;gap:6px}
 @media(max-width:1000px){.wb-cols{grid-template-columns:1fr}.wb-prev{position:static}.wb-frame{height:70vh}}
 @media(max-width:600px){.wb-grid,.wb-row{grid-template-columns:1fr}}
+
+.wb-paste{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--p);border-radius:var(--r);padding:16px}
+.wb-paste textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font:inherit;font-size:14px;width:100%;resize:vertical}
+.wb-paste textarea:focus-visible{outline:2px solid var(--p2);outline-offset:1px}
+.wb-paste small{color:var(--muted);font-size:11px;align-self:center}

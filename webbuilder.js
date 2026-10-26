@@ -170,6 +170,9 @@ function sec(titulo,abierto,kids){var d=h('details',{class:'wb-sec'},[h('summary
 function build(){
  root.textContent='';
  var form=h('div',{class:'wb-form'});
+ var ta=h('textarea',{id:'wb-paste',rows:7,maxlength:24000,placeholder:'Pega aquí todo lo que tengas del negocio: la ficha de Google (nombre, dirección, teléfono, horario, reseñas…), textos de su web, notas. Da igual el orden.'});
+ var go=h('button',{type:'button',class:'btn',id:'wb-go',text:'Crear la web con este texto',onclick:function(){ordenar(ta,go)}});
+ form.appendChild(h('div',{class:'wb-paste'},[h('strong',{text:'Pega todo y la IA monta la web'}),ta,h('div',{class:'wb-acts'},[go,h('small',{text:'Solo usa lo que pegues: no inventa datos. Revisa el resultado abajo y sube logo y fotos.'})])]));
 
  form.appendChild(sec('1 · Datos del negocio',true,[h('div',{class:'wb-grid'},[
   field('nombre','Nombre del negocio *',{ph:'Clínica Sol'}),field('sector','Tipo de negocio',{ph:'Peluquería, fisioterapia, taller…'}),
@@ -240,6 +243,36 @@ function build(){
  root.appendChild(h('div',{class:'panel wide wb-list',id:'wb-list'},[h('h2',{text:'Webs creadas'}),h('p',{class:'hint',text:'Inicia sesión en Ventas para ver y crear webs.'})]));
  refresh();
  listar();
+}
+
+/* ---------- pegar todo → IA ordena ---------- */
+function ordenar(ta,btn){
+ if(!logged()){msg('Inicia sesión en Ventas para usar la IA.','err');return}
+ var t=(ta.value||'').trim();if(t.length<20){msg('Pega primero el texto del negocio.','err');return}
+ btn.disabled=true;btn.textContent='Ordenando…';msg('La IA está ordenando el texto…');
+ sb().functions.invoke('oficina-web-extraer',{body:{texto:t}}).then(function(r){
+  btn.disabled=false;btn.textContent='Crear la web con este texto';
+  var d=r.data;
+  if(r.error||!d||!d.ok||!d.datos){msg('No se pudo ordenar: '+((d&&d.error)||(r.error&&r.error.message)||'error'),'err');return}
+  var n=d.datos,keep={logo:S.logo,hero:S.hero,sobre_img:S.sobre_img,galeria:S.galeria,color:S.color,color2:S.color2};
+  var nuevo=vacio();
+  Object.keys(nuevo).forEach(function(k){
+   if(k in keep)return;
+   var v=n[k];
+   if(Array.isArray(nuevo[k])){if(Array.isArray(v)&&v.length)nuevo[k]=v.slice(0,9)}
+   else if(typeof v==='string'&&v.trim())nuevo[k]=v.trim();
+   else if(typeof v==='number')nuevo[k]=String(v);
+  });
+  if(!nuevo.servicios.length)nuevo.servicios=[{titulo:'',texto:'',img:''}];
+  if(!nuevo.resenas.length)nuevo.resenas=[{autor:'',estrellas:5,texto:'',fecha:''}];
+  nuevo.resenas.forEach(function(x){x.estrellas=Math.min(5,Math.max(1,parseInt(x.estrellas,10)||5))});
+  nuevo.servicios.forEach(function(x){x.img=x.img||''});
+  S=Object.assign(nuevo,keep);
+  var pasted=ta.value;build();var t2=$('#wb-paste');if(t2)t2.value=pasted;
+  var det=root.querySelectorAll('.wb-sec');if(det[0])det[0].open=true;
+  refresh();
+  msg('Web montada. Revisa los datos, sube logo y fotos y pulsa «Crear enlace».','ok');
+ }).catch(function(e){btn.disabled=false;btn.textContent='Crear la web con este texto';msg('Error: '+(e.message||e),'err')});
 }
 
 /* ---------- guardar / listar ---------- */
